@@ -58,7 +58,7 @@
 </head>
 <body>
     <div class="network" id="network">
-        <svg id="svg" width="100%" height="600px" style="position:absolute; top:0; left:0; z-index: -1;"></svg>
+        <svg id="svg" width="100%" height="600px" style="position:absolute; top:0; left:0; z-index: -1;overflow: visible;"></svg>
         <!-- Layers and nodes will be added here dynamically -->
     </div>
 
@@ -67,16 +67,16 @@
     <div class="controls">
         <label for="input1">Input 1:</label>
         <input type="number" id="input1" placeholder="Input 1" value = "1" />
-    
+
         <label for="input2">Input 2:</label>
         <input type="number" id="input2" placeholder="Input 2" value = "2" />
-    
+
         <label for="learningRate">Learning Rate:</label>
         <input type="number" id="learningRate" placeholder="Learning Rate" step="0.01" value="0.1" />
-    
+
         <label for="targetValues">Target Values:</label>
         <input type="text" id="targetValues" placeholder="Enter target value" |step="0.01" value="1.0"/>
-    
+
         <button id ='forward' onclick="forwardPropagation()">Run Forward Propagation</button>
         <button id='backward' disabled=true onclick="backwardPropagation()">Run Backpropagation</button>
 

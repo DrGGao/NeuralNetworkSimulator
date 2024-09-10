@@ -22,7 +22,7 @@ function init_weight(){
     for (index = 0; index < 3; index++)
         document.getElementById(`node-1-${index}`).innerText = '';
     document.getElementById(`node-2-0`).innerText = '';
-    
+
     document.getElementById('backward').setAttribute('disabled', true);
     document.getElementById('forward').disabled = false;
 }
@@ -53,10 +53,31 @@ function setWeights(weights) {
     W2 = weights.W2;
     init_weight();
     updateNetworkDisplay(); // This function should re-calculate and update your network's display
-    
+
 }
 
 //setWeights(goodWeights);
+
+function extractAfterArrowRegex(text) {
+    const match = text.match(/->(.*)$/);  // 匹配'->'后面的所有字符
+    if (match) {
+        return match[1];  // 返回匹配的组（'->'后面的内容）
+    }
+    return text;  // 如果没有匹配，返回原文本
+}
+
+function extractAfterAsterisk(text) {
+    //console.log("function input: " + text);
+    output = text;
+    const regex = /\*(.*)$/;  // 匹配 '*' 后面的所有字符
+    const match = text.match(regex);  // 执行匹配操作
+    if (match) {
+        output = match[1];  // 返回匹配的组（'*'后面的内容）
+
+    }
+    //console.log("function output: "+ output);
+    return output;
+}
 
 function updateNetworkDisplay() {
     // Run forward propagation with the new weights
@@ -137,7 +158,7 @@ function forwardPropagation() {
 
     A1.forEach((a, i) => {
         document.getElementById(`node-1-${i}`).innerText = a.toFixed(2);
-        document.getElementById(`node-1-${i}`).style.color = 'transparent'; 
+        document.getElementById(`node-1-${i}`).style.color = 'transparent';
     });
 
     A2 = W2.map((weights, index) => {
@@ -146,7 +167,7 @@ function forwardPropagation() {
 
     //console.log(A2);
     document.getElementById(`node-2-0`).innerText = A2[0].toFixed(2);
-    document.getElementById(`node-2-0`).style.color = 'transparent'; 
+    document.getElementById(`node-2-0`).style.color = 'transparent';
 
     drawConnections();
     const currentTargetValue = document.getElementById('targetValues').value;
@@ -176,7 +197,7 @@ function drawConnections() {
         const nextLayer = layers[i + 1].querySelectorAll('.node');
         let weights = (i === 0) ? W1 : W2; // Determine which weight set to use
         const maxminvalue = findMinMaxWeights(W1, W2);
-    
+
         currentLayer.forEach((node1, index1) => {
             const rect1 = node1.getBoundingClientRect();
             nextLayer.forEach((node2, index2) => {
@@ -202,12 +223,15 @@ function drawConnections() {
                 const midpointx = rect1.left + 0.6 * (rect2.left - rect1.left) + rect1.width / 2 - svgRect.left;
                 const midpointy = rect1.top + 0.6 * (rect2.top - rect1.top) + rect1.height / 2 - svgRect.top - yOffset;
 
-                weightText.setAttribute('x', midpointx);
+
+                const textOffset = weightValue < 0 ? -10 : 0; // Left shift for negative values
+
+                weightText.setAttribute('x', midpointx+textOffset);
                 weightText.setAttribute('y', midpointy);
                 weightText.setAttribute('fill', color);
                 weightText.setAttribute('font-size', '12px');
-                
-                weightText.setAttribute('class', `weight-text-${i}-${index1}-${index2}`);
+
+                weightText.setAttribute('class', `weight-text#${i}#${index1}#${index2}`);
 
                 weightText.textContent = weightValue.toFixed(2);
                 weightText.setAttribute('pointer-events', 'none'); // Text does not block line event
@@ -218,31 +242,36 @@ function drawConnections() {
 }
 
 function ForwardresizeWeightText() {
-    const weightTextElements = document.querySelectorAll('[class^="weight-text-0"]');
-    
+    const weightTextElements = document.querySelectorAll('[class^="weight-text#0"]');
+
     weightTextElements.forEach(text => {
         text.style.fontSize = '20px';  // Set larger size
         const className = text.getAttribute('class');
-        const match = className.match(/weight-text-(\d+)-(\d+)-(\d+)/);
-        
+        const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
+
         if (match) {
             const i = parseInt(match[1], 10);
             const index1 = parseInt(match[2], 10);
             const index2 = parseInt(match[3], 10);
-            
+
             // Update the text content to be the sum of i, index1, and index2
+
             text.textContent = document.getElementById(`node-0-${index1}`).innerText + '*' + W1[index2][index1].toFixed(2);
-            
+
             setTimeout(() => {
                 weightTextElements.forEach(text => {
                     text.style.fontSize = '12px';
-                    if(text.textContent.slice(-5)[0] == '-')
-                        text.textContent = text.textContent.slice(-5);
-                    else
-                    text.textContent = text.textContent.slice(-4);
+
+                    // text.textContent = extractAfterAsterisk(text.textContent);
+                    // console.log(text.textContent);
+                    // if(text.textContent.slice(-5)[0] == '-')
+                    //     text.textContent = text.textContent.slice(-5);
+                    // else
+                    //     text.textContent = text.textContent.slice(-4);
+                    text.textContent = extractAfterAsterisk(text.textContent);
                 });
-                
-                document.getElementById(`node-1-${index2}`).style.color = 'black'; 
+
+                document.getElementById(`node-1-${index2}`).style.color = 'black';
             }, 1500);
 
         } else {
@@ -251,12 +280,12 @@ function ForwardresizeWeightText() {
     });
 
     setTimeout(() => {
-        const weightTextElements = document.querySelectorAll('[class^="weight-text-1"]');
-    
+        const weightTextElements = document.querySelectorAll('[class^="weight-text#1"]');
+
         weightTextElements.forEach(text => {
             text.style.fontSize = '20px';  // Set larger size
             const className = text.getAttribute('class');
-            const match = className.match(/weight-text-(\d+)-(\d+)-(\d+)/);
+            const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
             //.log(className);
             if (match) {
                 const i = parseInt(match[1], 10);
@@ -265,15 +294,19 @@ function ForwardresizeWeightText() {
                 // Update the text content to be the sum of i, index1, and index2
                 text.textContent = document.getElementById(`node-1-${index1}`).innerText + '*' + W2[index2][index1].toFixed(2);
 
+
                 setTimeout(() => {
                     weightTextElements.forEach(text => {
                         text.style.fontSize = '12px';
-                        if(text.textContent.slice(-5)[0] == '-')
-                            text.textContent = text.textContent.slice(-5);
-                        else
-                        text.textContent = text.textContent.slice(-4);
+                        // text.textContent = extractAfterAsterisk(text.textContent);
+                        // console.log(text.textContent);
+                        // if(text.textContent.slice(-5)[0] == '-')
+                        //     text.textContent = text.textContent.slice(-5);
+                        // else
+                        //     text.textContent = text.textContent.slice(-4);
+                        text.textContent = extractAfterAsterisk(text.textContent);
                     });
-                    document.getElementById(`node-2-${index2}`).style.color = 'black'; 
+                    document.getElementById(`node-2-${index2}`).style.color = 'black';
                 }, 1500);
 
             } else {
@@ -284,13 +317,13 @@ function ForwardresizeWeightText() {
 }
 
 function resizeWeightText() {
-    const weightTextElements = document.querySelectorAll('[class^="weight-text-1"]');
-    
+    const weightTextElements = document.querySelectorAll('[class^="weight-text#1"]');
+
     weightTextElements.forEach(text => {
         text.style.fontSize = '20px';  // Set larger size
         const className = text.getAttribute('class');
-        const match = className.match(/weight-text-(\d+)-(\d+)-(\d+)/);
-        
+        const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
+
         if (match) {
             const i = parseInt(match[1], 10);
             const index1 = parseInt(match[2], 10);
@@ -298,14 +331,17 @@ function resizeWeightText() {
             //.log([i, index1, index2])
             // Update the text content to be the sum of i, index1, and index2
             text.textContent = W2_before[index2][index1].toFixed(2) + '->' + W2[index2][index1].toFixed(2);
-
+            //console.log(text.textContent);
             setTimeout(() => {
                 weightTextElements.forEach(text => {
                     text.style.fontSize = '12px';
-                    if(text.textContent.slice(-5)[0] == '-')
-                        text.textContent = text.textContent.slice(-5);
-                    else
-                    text.textContent = text.textContent.slice(-4);
+
+                    text.textContent = extractAfterArrowRegex(text.textContent);
+                    //console.log(text.textContent);
+                    // if(text.textContent.slice(-5)[0] == '-')
+                    //     text.textContent = text.textContent.slice(-5);
+                    // else
+                    // text.textContent = text.textContent.slice(-4);
                 });
             }, 1500);
 
@@ -315,24 +351,29 @@ function resizeWeightText() {
     });
 
     setTimeout(() => {
-        const weightTextElements = document.querySelectorAll('[class^="weight-text-0"]');
-    
+        const weightTextElements = document.querySelectorAll('[class^="weight-text#0"]');
+
         weightTextElements.forEach(text => {
             text.style.fontSize = '20px';  // Set larger size
             const className = text.getAttribute('class');
-            const match = className.match(/weight-text-(\d+)-(\d+)-(\d+)/);
+            const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
             //.log(className);
             if (match) {
                 const i = parseInt(match[1], 10);
                 const index1 = parseInt(match[2], 10);
                 const index2 = parseInt(match[3], 10);
+                // console output
+                //console.log([i, index1, index2])
                 // Update the text content to be the sum of i, index1, and index2
-                text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
 
+                text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
+                //console.log(text.textContent);
                 setTimeout(() => {
                     weightTextElements.forEach(text => {
                         text.style.fontSize = '12px';
-                        text.textContent = text.textContent.slice(-4);
+                        text.textContent = extractAfterArrowRegex(text.textContent);
+
+                        // text.textContent = text.textContent.slice(-4);
                     });
                 }, 1500);
 
@@ -346,7 +387,7 @@ function resizeWeightText() {
 function findMinMaxWeights(W1, W2) {
     // Combine all weights from W1 and W2 into a single flat array
     let allWeights = [...W1.flat(), ...W2.flat()];
-    
+
     // Calculate the maximum and minimum weight values
     let maxWeight = Math.max(...allWeights);
     let minWeight = Math.min(...allWeights);
@@ -428,13 +469,13 @@ function backwardPropagation() {
         //console.log(hiddenErrors);
         // Update output layer weights and biases
         W2 = W2.map((weights, i) => weights.map((w, j) => w + learningRate * outputDeltas[i] * A1[j]));
-  
+
 
         // Update hidden layer weights and biases
         W1 = W1.map((weights, i) => weights.map((w, j) => w + learningRate * hiddenDeltas[i] * inputs[j]));
 
-        
-    
+
+
         //window.alert(b1);
         // Redraw the network with updated weights and display the changes
         //forwardPropagation();
@@ -447,11 +488,11 @@ function backwardPropagation() {
         //const maxError = Math.max(...outputErrors.map(Math.abs));
         //if (maxError > tolerance) {
         //    setTimeout(iterate, 0); // Use setTimeout to avoid freezing the UI
-        //} 
+        //}
     //}
 
     //iterate();
-    
+
 }
 
 
