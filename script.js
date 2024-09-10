@@ -68,7 +68,7 @@ function extractAfterArrowRegex(text) {
 
 function extractAfterAsterisk(text) {
     //console.log("function input: " + text);
-    output = text;
+    let output = text;
     const regex = /\*(.*)$/;  // 匹配 '*' 后面的所有字符
     const match = text.match(regex);  // 执行匹配操作
     if (match) {
