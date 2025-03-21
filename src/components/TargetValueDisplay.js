@@ -18,7 +18,7 @@ const TargetPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const TargetValueDisplay = ({ targetValue, mode = "train" }) => {
-  // 在应用模式下不显示目标值
+  // Do not display target value in apply mode
   if (mode === "apply") {
     return null;
   }
@@ -26,7 +26,7 @@ const TargetValueDisplay = ({ targetValue, mode = "train" }) => {
   return (
     <TargetPaper elevation={2}>
       <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-        目标输出值
+        Target Output Value
       </Typography>
       <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
         {targetValue.toFixed(3)}

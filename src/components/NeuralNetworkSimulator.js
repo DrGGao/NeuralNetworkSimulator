@@ -94,7 +94,7 @@ const NeuralNetworkSimulator = () => {
       // In apply mode, show all layers by default
       if (newMode === "apply") {
         setVisibleLayers({ input: true, hidden: true, output: true });
-        // 不再立即计算输出值，而是保持为0
+        // Don't calculate output values immediately, keep them at 0
         setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
       }
     }
@@ -102,34 +102,34 @@ const NeuralNetworkSimulator = () => {
   
   // Forward propagation
   const handleForwardPropagation = () => {
-    // 将动画分为多个阶段
-    // 阶段1: 输入层到隐藏层的计算
-    // 阶段2: 隐藏层值的显示
-    // 阶段3: 隐藏层到输出层的计算
-    // 阶段4: 输出层值的显示
+    // Divide animation into multiple phases
+    // Phase 1: Input layer to hidden layer calculation
+    // Phase 2: Display hidden layer values
+    // Phase 3: Hidden layer to output layer calculation
+    // Phase 4: Display output layer values
     
-    // 计算前向传播结果，但先不显示
+    // Calculate forward propagation results but don't display yet
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // 设置基本时间参数
-    const transitionTime = 1500; // 基本过渡时间
-    const updateInterval = 50; // 更新间隔
-    const steps = 20; // 动画步数
+    // Set basic time parameters
+    const transitionTime = 1500; // Basic transition time
+    const updateInterval = 50; // Update interval
+    const steps = 20; // Animation steps
     
-    // 阶段1: 输入层到隐藏层的计算 - 只显示输入层和连接
+    // Phase 1: Input layer to hidden layer calculation - only show input layer and connections
     setAnimationPhase('forward-input');
     setVisibleLayers({ input: true, hidden: false, output: false });
     
-    // 阶段2: 显示隐藏层值
+    // Phase 2: Display hidden layer values
     setTimeout(() => {
-      // 动画显示隐藏层的值
+      // Animate showing hidden layer values
       setVisibleLayers({ input: true, hidden: true, output: false });
       
       let step = 0;
       const initialA1 = [0, 0, 0];
       const animateA1 = setInterval(() => {
         step++;
-        // 逐步增加隐藏层值
+        // Gradually increase hidden layer values
         const animatedA1 = initialA1.map((_, i) => {
           return (A1[i] * step) / steps;
         });
@@ -140,12 +140,12 @@ const NeuralNetworkSimulator = () => {
           clearInterval(animateA1);
           setLayerOutputs(prev => ({ ...prev, A1 }));
           
-          // 阶段3: 隐藏层到输出层的计算
+          // Phase 3: Hidden layer to output layer calculation
           setTimeout(() => {
-            // 切换动画阶段，显示隐藏层到输出层的乘法步骤
+            // Switch animation phase, show multiplication steps from hidden to output layer
             setAnimationPhase('forward-hidden');
             
-            // 阶段4: 显示输出层结果
+            // Phase 4: Display output layer results
             setTimeout(() => {
               setVisibleLayers({ input: true, hidden: true, output: true });
               
@@ -163,7 +163,7 @@ const NeuralNetworkSimulator = () => {
                   clearInterval(animateA2);
                   setLayerOutputs({ A1, A2 });
                   
-                  // 完成所有阶段
+                  // Complete all phases
                   setTimeout(() => {
                     setAnimationPhase(null);
                     setForwardDisabled(true);
@@ -249,33 +249,33 @@ const NeuralNetworkSimulator = () => {
   
   // Apply network function for apply mode
   const handleApplyNetwork = () => {
-    // 计算输出但不立即显示
+    // Calculate output but don't display immediately
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // 设置基本时间参数
-    const transitionTime = 1500; // 基本过渡时间
+    // Set basic time parameters
+    const transitionTime = 1500; // Basic transition time
     
-    // 阶段1: 先只显示输入层到隐藏层的连接计算
+    // Phase 1: First only show input layer to hidden layer connection calculations
     setAnimationPhase('apply-input');
     
-    // 先清空输出值（设置为0使得ControlPanel中不显示任何结果）
+    // Clear output values (set to 0 so nothing is displayed in ControlPanel)
     setLayerOutputs(prev => ({ ...prev, A2: [0] }));
     
-    // 阶段2: 延迟显示隐藏层值
+    // Phase 2: Delay showing hidden layer values
     setTimeout(() => {
-      // 显示隐藏层的计算结果
+      // Show hidden layer calculation results
       setLayerOutputs(prev => ({ ...prev, A1 }));
       
-      // 阶段3: 显示隐藏层到输出层的连接计算
+      // Phase 3: Show hidden layer to output layer connection calculations
       setTimeout(() => {
         setAnimationPhase('apply-hidden');
         
-        // 阶段4: 最后才显示输出结果
+        // Phase 4: Finally show output results
         setTimeout(() => {
-          // 显示最终输出值
+          // Show final output value
           setLayerOutputs(prev => ({ ...prev, A2 }));
           
-          // 结束动画阶段
+          // End animation phase
           setTimeout(() => {
             setAnimationPhase(null);
           }, transitionTime / 2);
@@ -298,22 +298,22 @@ const NeuralNetworkSimulator = () => {
   
   // Reset state
   const resetState = () => {
-    // 根据当前模式决定如何重置状态
+    // Reset state based on current mode
     if (mode === "train") {
-      // 训练模式下隐藏隐藏层和输出层
+      // In training mode, hide hidden and output layers
       setVisibleLayers({ input: true, hidden: false, output: false });
-      // 清除层输出
+      // Clear layer outputs
       setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
     } else if (mode === "apply") {
-      // 应用模式下显示所有层
+      // In apply mode, show all layers
       setVisibleLayers({ input: true, hidden: true, output: true });
-      // 不再计算输出值，保持为0
+      // Don't calculate output values, keep them at 0
       setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
     }
     
-    // 重置动画阶段
+    // Reset animation phase
     setAnimationPhase(null);
-    // 启用前向传播，禁用反向传播
+    // Enable forward propagation, disable backpropagation
     setForwardDisabled(false);
     setBackwardDisabled(true);
   };

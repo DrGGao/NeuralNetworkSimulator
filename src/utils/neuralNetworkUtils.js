@@ -1,4 +1,4 @@
-// 初始化权重
+// Initialize weights
 export const goodWeights = {
   W1: [[0.39, 0.49], [0.96, 0.53], [0.04, 0.24]],
   W2: [[0.56, 0.47, 0.51]]
@@ -9,22 +9,22 @@ export const badWeights = {
   W2: [[0.41, -0.36, -0.22]]
 };
 
-// 激活函数
+// Activation function
 export const ReLU = (x) => Math.max(0, x);
 
-// 激活函数导数
+// Activation function derivative
 export const ReLUDerivative = (x) => x > 0 ? 1 : 0;
 
-// 前向传播
+// Forward propagation
 export const forwardPropagation = (inputs, weights) => {
   const { W1, W2 } = weights;
   
-  // 计算隐藏层输出
+  // Calculate hidden layer outputs
   const A1 = W1.map((weights) => {
     return ReLU(weights.reduce((sum, weight, i) => sum + weight * inputs[i], 0));
   });
 
-  // 计算输出层输出
+  // Calculate output layer outputs
   const A2 = W2.map((weights) => {
     return ReLU(weights.reduce((sum, weight, i) => sum + weight * A1[i], 0));
   });
@@ -32,26 +32,26 @@ export const forwardPropagation = (inputs, weights) => {
   return { inputs, A1, A2 };
 };
 
-// 反向传播
+// Backward propagation
 export const backwardPropagation = (inputs, A1, A2, W1, W2, targetOutputs, learningRate) => {
-  // 计算输出层误差和梯度
+  // Calculate output layer errors and gradients
   const outputErrors = targetOutputs.map((target, i) => target - A2[i]);
   const outputDeltas = outputErrors.map((error, i) => error * ReLUDerivative(A2[i]));
   
-  // 计算隐藏层误差和梯度
+  // Calculate hidden layer errors and gradients
   const hiddenErrors = W2[0].map((w, j) => w * outputDeltas[0]);
   const hiddenDeltas = hiddenErrors.map((error, i) => error * ReLUDerivative(A1[i]));
   
-  // 更新输出层权重
+  // Update output layer weights
   const newW2 = W2.map((weights, i) => weights.map((w, j) => w + learningRate * outputDeltas[i] * A1[j]));
   
-  // 更新隐藏层权重
+  // Update hidden layer weights
   const newW1 = W1.map((weights, i) => weights.map((w, j) => w + learningRate * hiddenDeltas[i] * inputs[j]));
   
   return { newW1, newW2 };
 };
 
-// 找出权重的最大值和最小值
+// Find minimum and maximum weight values
 export const findMinMaxWeights = (W1, W2) => {
   const allWeights = [...W1.flat(), ...W2.flat()];
   const maxWeight = Math.max(...allWeights);
@@ -59,16 +59,16 @@ export const findMinMaxWeights = (W1, W2) => {
   return { maxWeight, minWeight };
 };
 
-// 根据权重值计算颜色
+// Calculate color based on weight value
 export const getWeightColor = (weight, { maxWeight, minWeight }) => {
   const intensity = (weight - minWeight) / (maxWeight - minWeight);
   const colorValue = Math.floor(255 - intensity * 255);
   
   if (weight > 0) {
-    // 正权重使用绿色
+    // Use green for positive weights
     return `rgb(0, ${colorValue}, 0)`;
   } else {
-    // 负权重使用红色
+    // Use red for negative weights
     return `rgb(${colorValue}, 0, 0)`;
   }
 }; 

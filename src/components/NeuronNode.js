@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-// 样式化神经元节点
+// Style the neuron node
 const NeuronPaper = styled(Paper)(({ theme }) => ({
   width: '70px',
   height: '70px',
@@ -29,9 +29,9 @@ const ValueText = styled(Box)(({ theme, visible }) => ({
   fontSize: '18px',
 }));
 
-// 神经元节点组件
+// Neuron node component
 const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
-  // 根据值的变化，计算节点的高亮效果
+  // Calculate highlight effect based on value changes
   const normalizedValue = Math.min(Math.abs(parseFloat(value) || 0) / 5, 1);
   const activeColor = normalizedValue > 0 ? `rgba(33, 150, 243, ${normalizedValue * 0.6})` : 'transparent';
   

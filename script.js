@@ -59,20 +59,20 @@ function setWeights(weights) {
 //setWeights(goodWeights);
 
 function extractAfterArrowRegex(text) {
-    const match = text.match(/->(.*)$/);  // 匹配'->'后面的所有字符
+    const match = text.match(/->(.*)$/);  // Match all characters after '->'
     if (match) {
-        return match[1];  // 返回匹配的组（'->'后面的内容）
+        return match[1];  // Return the matched group (content after '->')
     }
-    return text;  // 如果没有匹配，返回原文本
+    return text;  // If no match, return the original text
 }
 
 function extractAfterAsterisk(text) {
     //console.log("function input: " + text);
     let output = text;
-    const regex = /\*(.*)$/;  // 匹配 '*' 后面的所有字符
-    const match = text.match(regex);  // 执行匹配操作
+    const regex = /\*(.*)$/;  // Match all characters after '*'
+    const match = text.match(regex);  // Execute the match operation
     if (match) {
-        output = match[1];  // 返回匹配的组（'*'后面的内容）
+        output = match[1];  // Return the matched group (content after '*')
 
     }
     //console.log("function output: "+ output);
