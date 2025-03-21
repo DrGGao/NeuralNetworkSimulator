@@ -19,7 +19,6 @@ This is a neural network visualization tool developed using React, providing an 
 
 ## Getting Started
 
-
 ### Install Dependencies
 
 ```bash
