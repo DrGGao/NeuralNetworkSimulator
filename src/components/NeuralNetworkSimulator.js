@@ -9,7 +9,8 @@ import {
   goodWeights, 
   badWeights, 
   forwardPropagation, 
-  backwardPropagation 
+  backwardPropagation,
+  checkAndFixWeights 
 } from '../utils/neuralNetworkUtils';
 
 const NetworkContainer = styled(Paper)(({ theme }) => ({
@@ -102,6 +103,12 @@ const NeuralNetworkSimulator = () => {
   
   // Forward propagation
   const handleForwardPropagation = () => {
+    // Safety check for NaN in weights before propagation
+    const safeWeights = checkAndFixWeights(weights);
+    if (safeWeights !== weights) {
+      setWeights(safeWeights);
+    }
+    
     // Divide animation into multiple phases
     // Phase 1: Input layer to hidden layer calculation
     // Phase 2: Display hidden layer values
@@ -180,6 +187,12 @@ const NeuralNetworkSimulator = () => {
   
   // Backward propagation
   const handleBackwardPropagation = () => {
+    // Safety check for NaN in weights before propagation
+    const safeWeights = checkAndFixWeights(weights);
+    if (safeWeights !== weights) {
+      setWeights(safeWeights);
+    }
+    
     setAnimationPhase('backward');
     
     // Calculate backpropagation
@@ -249,6 +262,12 @@ const NeuralNetworkSimulator = () => {
   
   // Apply network function for apply mode
   const handleApplyNetwork = () => {
+    // Safety check for NaN in weights before propagation
+    const safeWeights = checkAndFixWeights(weights);
+    if (safeWeights !== weights) {
+      setWeights(safeWeights);
+    }
+    
     // Calculate output but don't display immediately
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
