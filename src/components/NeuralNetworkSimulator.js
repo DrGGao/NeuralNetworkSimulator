@@ -60,7 +60,7 @@ const NeuralNetworkSimulator = () => {
   });
   const [animationPhase, setAnimationPhase] = useState(null);
   const [learningRate, setLearningRate] = useState(0.1);
-  const [targetValue, setTargetValue] = useState(1.0);
+  const [targetValue, setTargetValue] = useState(3.0);
   const [forwardDisabled, setForwardDisabled] = useState(false);
   const [backwardDisabled, setBackwardDisabled] = useState(true);
   
