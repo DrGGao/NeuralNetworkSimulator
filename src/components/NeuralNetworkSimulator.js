@@ -283,10 +283,6 @@ const NeuralNetworkSimulator = () => {
         // and disable backward button
         setForwardDisabled(false);
         setBackwardDisabled(true);
-        
-        // Recalculate outputs with new weights to show updated network state
-        const { A1, A2 } = forwardPropagation(inputs, { W1: newW1, W2: newW2 });
-        setLayerOutputs({ A1, A2 });
       }, 1500);
     }, 500); // Display transition text for 0.5 seconds
   };
