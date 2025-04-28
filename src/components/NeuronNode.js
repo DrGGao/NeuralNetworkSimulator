@@ -3,7 +3,7 @@ import { Box, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 // Style the neuron node
-const NeuronPaper = styled(Paper)(({ theme }) => ({
+const NeuronPaper = styled(Paper)(({ theme, nodeVisible }) => ({
   width: '70px',
   height: '70px',
   borderRadius: '50%',
@@ -13,7 +13,8 @@ const NeuronPaper = styled(Paper)(({ theme }) => ({
   margin: '10px',
   border: '2px solid #333',
   fontWeight: 'bold',
-  transition: 'all 0.5s ease-in-out, transform 0.3s ease',
+  opacity: nodeVisible ? 1 : 0.3,
+  transition: 'all 0.5s ease-in-out, transform 0.3s ease, opacity 0.5s ease-in-out',
   boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   '&:hover': {
     transform: 'scale(1.05)',
@@ -31,17 +32,21 @@ const ValueText = styled(Box)(({ theme, visible }) => ({
 
 // Neuron node component
 const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
+  // 检查值是否为NaN或undefined，如果是则显示为0
+  const safeValue = (value !== undefined && !isNaN(parseFloat(value))) ? parseFloat(value) : 0;
+  
   // Calculate highlight effect based on value changes
-  const normalizedValue = Math.min(Math.abs(parseFloat(value) || 0) / 5, 1);
+  const normalizedValue = Math.min(Math.abs(safeValue) / 5, 1);
   const activeColor = normalizedValue > 0 ? `rgba(33, 150, 243, ${normalizedValue * 0.6})` : 'transparent';
   
   return (
     <NeuronPaper 
       id={id} 
       elevation={3}
+      nodeVisible={visible}
       sx={{
         backgroundColor: activeColor,
-        transition: 'background-color 0.8s ease-in-out, box-shadow 0.5s ease-in-out',
+        transition: 'background-color 0.8s ease-in-out, box-shadow 0.5s ease-in-out, opacity 0.5s ease-in-out',
         boxShadow: normalizedValue > 0 
           ? `0 0 ${normalizedValue * 15}px ${normalizedValue * 5}px rgba(33, 150, 243, ${normalizedValue * 0.3})`
           : '0 4px 8px rgba(0,0,0,0.1)',
@@ -51,7 +56,7 @@ const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
         component="span" 
         visible={visible}
       >
-        {value !== undefined ? parseFloat(value).toFixed(2) : ''}
+        {visible ? (safeValue === 0 && value === '' ? '' : safeValue.toFixed(2)) : ''}
       </ValueText>
     </NeuronPaper>
   );

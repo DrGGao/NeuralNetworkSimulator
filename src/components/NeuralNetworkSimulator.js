@@ -60,6 +60,15 @@ const NeuralNetworkSimulator = () => {
   });
   const [animationPhase, setAnimationPhase] = useState(null);
   const [oldWeights, setOldWeights] = useState(null);
+  const [animationStep, setAnimationStep] = useState(0);
+  const [visibleNodes, setVisibleNodes] = useState({
+    hidden: [false, false, false],
+    output: [false]
+  });
+  const [visibleConnections, setVisibleConnections] = useState({
+    inputToHidden: [[false, false], [false, false], [false, false]],
+    hiddenToOutput: [[false, false, false]]
+  });
   const [learningRate, setLearningRate] = useState(0.1);
   const [targetValue, setTargetValue] = useState(3.0);
   const [forwardDisabled, setForwardDisabled] = useState(false);
@@ -110,80 +119,124 @@ const NeuralNetworkSimulator = () => {
       setWeights(safeWeights);
     }
     
-    // Divide animation into multiple phases
-    // Phase 1: Input layer to hidden layer calculation
-    // Phase 2: Display hidden layer values
-    // Phase 3: Hidden layer to output layer calculation
-    // Phase 4: Display output layer values
-    
-    // Calculate forward propagation results but don't display yet
+    // Calculate forward propagation results
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // Set basic time parameters
-    const transitionTime = 1500; // Basic transition time
-    const updateInterval = 50; // Update interval
-    const steps = 20; // Animation steps
+    // 创建每个步骤显示的层输出
+    const stepOutputs = [
+      { A1: [0, 0, 0], A2: [0] },  // 初始状态
+      { A1: [A1[0], 0, 0], A2: [0] },  // 显示第一个隐藏节点
+      { A1: [A1[0], A1[1], 0], A2: [0] },  // 显示第二个隐藏节点
+      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // 显示第三个隐藏节点
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 显示输出节点
+    ];
     
-    // Phase 1: Input layer to hidden layer calculation - only show input layer and connections
-    setAnimationPhase('forward-input');
-    setVisibleLayers({ input: true, hidden: false, output: false });
+    // Reset animation state
+    setAnimationStep(0);
+    setVisibleNodes({
+      hidden: [false, false, false],
+      output: [false]
+    });
+    setVisibleConnections({
+      inputToHidden: [[false, false], [false, false], [false, false]],
+      hiddenToOutput: [[false, false, false]]
+    });
     
-    // Phase 2: Display hidden layer values
-    setTimeout(() => {
-      // Animate showing hidden layer values
-      setVisibleLayers({ input: true, hidden: true, output: false });
+    // 设置初始层输出为第一步
+    setLayerOutputs(stepOutputs[0]);
+    
+    // Make sure input layer is visible and others are hidden initially
+    setVisibleLayers({ input: true, hidden: true, output: true });
+    
+    // Delay between animation steps
+    const stepDelay = 800;
+    
+    // Start animation sequence
+    const startAnimation = () => {
+      // Step 1: Show connections from input to first hidden node
+      setAnimationPhase('forward-input-to-hidden-1');
+      setVisibleConnections({
+        inputToHidden: [[true, true], [false, false], [false, false]],
+        hiddenToOutput: [[false, false, false]]
+      });
       
-      let step = 0;
-      const initialA1 = [0, 0, 0];
-      const animateA1 = setInterval(() => {
-        step++;
-        // Gradually increase hidden layer values
-        const animatedA1 = initialA1.map((_, i) => {
-          return (A1[i] * step) / steps;
-        });
+      // Step 2: Show first hidden node
+      setTimeout(() => {
+        setAnimationStep(1);
+        const newVisibleNodes = { ...visibleNodes };
+        newVisibleNodes.hidden[0] = true;
+        setVisibleNodes(newVisibleNodes);
+        setLayerOutputs(stepOutputs[1]);
         
-        setLayerOutputs(prev => ({ ...prev, A1: animatedA1 }));
-        
-        if (step >= steps) {
-          clearInterval(animateA1);
-          setLayerOutputs(prev => ({ ...prev, A1 }));
+        // Step 3: Show connections from input to second hidden node
+        setTimeout(() => {
+          setAnimationPhase('forward-input-to-hidden-2');
+          setVisibleConnections({
+            inputToHidden: [[true, true], [true, true], [false, false]],
+            hiddenToOutput: [[false, false, false]]
+          });
           
-          // Phase 3: Hidden layer to output layer calculation
+          // Step 4: Show second hidden node
           setTimeout(() => {
-            // Switch animation phase, show multiplication steps from hidden to output layer
-            setAnimationPhase('forward-hidden');
+            setAnimationStep(2);
+            const newVisibleNodes = { ...visibleNodes };
+            newVisibleNodes.hidden[0] = true;
+            newVisibleNodes.hidden[1] = true;
+            setVisibleNodes(newVisibleNodes);
+            setLayerOutputs(stepOutputs[2]);
             
-            // Phase 4: Display output layer results
+            // Step 5: Show connections from input to third hidden node
             setTimeout(() => {
-              setVisibleLayers({ input: true, hidden: true, output: true });
+              setAnimationPhase('forward-input-to-hidden-3');
+              setVisibleConnections({
+                inputToHidden: [[true, true], [true, true], [true, true]],
+                hiddenToOutput: [[false, false, false]]
+              });
               
-              let outputStep = 0;
-              const initialA2 = [0];
-              const animateA2 = setInterval(() => {
-                outputStep++;
-                const animatedA2 = initialA2.map((_, i) => {
-                  return (A2[i] * outputStep) / steps;
-                });
+              // Step 6: Show third hidden node
+              setTimeout(() => {
+                setAnimationStep(3);
+                const newVisibleNodes = { ...visibleNodes };
+                newVisibleNodes.hidden[0] = true;
+                newVisibleNodes.hidden[1] = true;
+                newVisibleNodes.hidden[2] = true;
+                setVisibleNodes(newVisibleNodes);
+                setLayerOutputs(stepOutputs[3]);
                 
-                setLayerOutputs(prev => ({ ...prev, A1, A2: animatedA2 }));
-                
-                if (outputStep >= steps) {
-                  clearInterval(animateA2);
-                  setLayerOutputs({ A1, A2 });
+                // Step 7: Show connections from hidden to output
+                setTimeout(() => {
+                  setAnimationPhase('forward-hidden-to-output');
+                  setVisibleConnections({
+                    inputToHidden: [[true, true], [true, true], [true, true]],
+                    hiddenToOutput: [[true, true, true]]
+                  });
                   
-                  // Complete all phases
+                  // Step 8: Show output node
                   setTimeout(() => {
-                    setAnimationPhase(null);
-                    setForwardDisabled(true);
-                    setBackwardDisabled(false);
-                  }, transitionTime / 2);
-                }
-              }, updateInterval);
-            }, transitionTime);
-          }, transitionTime / 2);
-        }
-      }, updateInterval);
-    }, transitionTime);
+                    setAnimationStep(4);
+                    const newVisibleNodes = { ...visibleNodes };
+                    newVisibleNodes.hidden = [true, true, true];
+                    newVisibleNodes.output = [true];
+                    setVisibleNodes(newVisibleNodes);
+                    setLayerOutputs(stepOutputs[4]);
+                    
+                    // Final step: Complete animation
+                    setTimeout(() => {
+                      setAnimationPhase(null);
+                      setForwardDisabled(true);
+                      setBackwardDisabled(false);
+                    }, stepDelay);
+                  }, stepDelay);
+                }, stepDelay);
+              }, stepDelay);
+            }, stepDelay);
+          }, stepDelay);
+        }, stepDelay);
+      }, stepDelay);
+    };
+    
+    // Start the animation
+    startAnimation();
   };
   
   // Backward propagation
@@ -249,36 +302,119 @@ const NeuralNetworkSimulator = () => {
     // Calculate output but don't display immediately
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // Set basic time parameters
-    const transitionTime = 1500; // Basic transition time
+    // 创建每个步骤显示的层输出
+    const stepOutputs = [
+      { A1: [0, 0, 0], A2: [0] },  // 初始状态
+      { A1: [A1[0], 0, 0], A2: [0] },  // 显示第一个隐藏节点
+      { A1: [A1[0], A1[1], 0], A2: [0] },  // 显示第二个隐藏节点
+      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // 显示第三个隐藏节点
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 显示输出节点
+    ];
     
-    // Phase 1: First only show input layer to hidden layer connection calculations
-    setAnimationPhase('apply-input');
+    // Reset animation state
+    setAnimationStep(0);
+    setVisibleNodes({
+      hidden: [false, false, false],
+      output: [false]
+    });
+    setVisibleConnections({
+      inputToHidden: [[false, false], [false, false], [false, false]],
+      hiddenToOutput: [[false, false, false]]
+    });
     
-    // Clear output values (set to 0 so nothing is displayed in ControlPanel)
-    setLayerOutputs(prev => ({ ...prev, A2: [0] }));
+    // 设置初始层输出为第一步
+    setLayerOutputs(stepOutputs[0]);
     
-    // Phase 2: Delay showing hidden layer values
-    setTimeout(() => {
-      // Show hidden layer calculation results
-      setLayerOutputs(prev => ({ ...prev, A1 }));
+    // Make sure input layer is visible and others are hidden initially
+    setVisibleLayers({ input: true, hidden: true, output: true });
+    
+    // Delay between animation steps
+    const stepDelay = 800;
+    
+    // Start animation sequence - same as forward propagation
+    const startAnimation = () => {
+      // Step 1: Show connections from input to first hidden node
+      setAnimationPhase('forward-input-to-hidden-1');
+      setVisibleConnections({
+        inputToHidden: [[true, true], [false, false], [false, false]],
+        hiddenToOutput: [[false, false, false]]
+      });
       
-      // Phase 3: Show hidden layer to output layer connection calculations
+      // Step 2: Show first hidden node
       setTimeout(() => {
-        setAnimationPhase('apply-hidden');
+        setAnimationStep(1);
+        const newVisibleNodes = { ...visibleNodes };
+        newVisibleNodes.hidden[0] = true;
+        setVisibleNodes(newVisibleNodes);
+        setLayerOutputs(stepOutputs[1]);
         
-        // Phase 4: Finally show output results
+        // Step 3: Show connections from input to second hidden node
         setTimeout(() => {
-          // Show final output value
-          setLayerOutputs(prev => ({ ...prev, A2 }));
+          setAnimationPhase('forward-input-to-hidden-2');
+          setVisibleConnections({
+            inputToHidden: [[true, true], [true, true], [false, false]],
+            hiddenToOutput: [[false, false, false]]
+          });
           
-          // End animation phase
+          // Step 4: Show second hidden node
           setTimeout(() => {
-            setAnimationPhase(null);
-          }, transitionTime / 2);
-        }, transitionTime);
-      }, transitionTime);
-    }, transitionTime);
+            setAnimationStep(2);
+            const newVisibleNodes = { ...visibleNodes };
+            newVisibleNodes.hidden[0] = true;
+            newVisibleNodes.hidden[1] = true;
+            setVisibleNodes(newVisibleNodes);
+            setLayerOutputs(stepOutputs[2]);
+            
+            // Step 5: Show connections from input to third hidden node
+            setTimeout(() => {
+              setAnimationPhase('forward-input-to-hidden-3');
+              setVisibleConnections({
+                inputToHidden: [[true, true], [true, true], [true, true]],
+                hiddenToOutput: [[false, false, false]]
+              });
+              
+              // Step 6: Show third hidden node
+              setTimeout(() => {
+                setAnimationStep(3);
+                const newVisibleNodes = { ...visibleNodes };
+                newVisibleNodes.hidden[0] = true;
+                newVisibleNodes.hidden[1] = true;
+                newVisibleNodes.hidden[2] = true;
+                setVisibleNodes(newVisibleNodes);
+                setLayerOutputs(stepOutputs[3]);
+                
+                // Step 7: Show connections from hidden to output
+                setTimeout(() => {
+                  setAnimationPhase('forward-hidden-to-output');
+                  setVisibleConnections({
+                    inputToHidden: [[true, true], [true, true], [true, true]],
+                    hiddenToOutput: [[true, true, true]]
+                  });
+                  
+                  // Step 8: Show output node
+                  setTimeout(() => {
+                    setAnimationStep(4);
+                    const newVisibleNodes = { ...visibleNodes };
+                    newVisibleNodes.hidden = [true, true, true];
+                    newVisibleNodes.output = [true];
+                    setVisibleNodes(newVisibleNodes);
+                    setLayerOutputs(stepOutputs[4]);
+                    
+                    // Final step: Complete animation
+                    setTimeout(() => {
+                      setAnimationPhase(null);
+                    }, stepDelay);
+                  }, stepDelay);
+                }, stepDelay);
+              }, stepDelay);
+            }, stepDelay);
+          }, stepDelay);
+        }, stepDelay);
+      }, stepDelay);
+    };
+    
+    // Start the animation
+    startAnimation();
   };
   
   // Set good initialization weights
@@ -355,6 +491,7 @@ const NeuralNetworkSimulator = () => {
             hiddenSize={hiddenSize} 
             outputSize={outputSize}
             animationPhase={animationPhase}
+            visibleConnections={visibleConnections}
           />
           
           <NetworkLayer 
@@ -370,7 +507,9 @@ const NeuralNetworkSimulator = () => {
             layerName="Hidden Layer" 
             size={hiddenSize} 
             values={layerOutputs.A1} 
-            visible={visibleLayers.hidden} 
+            visible={visibleLayers.hidden}
+            visibleNodes={visibleNodes.hidden}
+            animationStep={animationStep}
           />
           
           <NetworkLayer 
@@ -378,7 +517,9 @@ const NeuralNetworkSimulator = () => {
             layerName="Output Layer" 
             size={outputSize} 
             values={layerOutputs.A2} 
-            visible={visibleLayers.output} 
+            visible={visibleLayers.output}
+            visibleNodes={visibleNodes.output}
+            animationStep={animationStep}
           />
           
           <TargetValueDisplay targetValue={targetValue} mode={mode} />

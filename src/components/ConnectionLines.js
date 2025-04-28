@@ -2,7 +2,18 @@ import React, { useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { findMinMaxWeights, getWeightColor } from '../utils/neuralNetworkUtils';
 
-const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSize, showValues = true, animationPhase = null }) => {
+const ConnectionLines = ({ 
+  W1, 
+  W2, 
+  oldW1, 
+  oldW2, 
+  inputSize, 
+  hiddenSize, 
+  outputSize, 
+  showValues = true, 
+  animationPhase = null,
+  visibleConnections = null
+}) => {
   const svgRef = useRef(null);
 
   const drawConnections = () => {
@@ -54,6 +65,18 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
           const toPos = getNodePosition(layerIndex + 1, j);
           if (!toPos) continue;
           
+          // 检查连接是否可见
+          let isConnectionVisible = true;
+          if (visibleConnections) {
+            if (layerIndex === 0 && visibleConnections.inputToHidden) {
+              isConnectionVisible = visibleConnections.inputToHidden[j][i];
+            } else if (layerIndex === 1 && visibleConnections.hiddenToOutput) {
+              isConnectionVisible = visibleConnections.hiddenToOutput[j][i];
+            }
+          }
+          
+          if (!isConnectionVisible) continue;
+          
           const weight = weights[j][i];
           const color = getWeightColor(weight, weightMinMax);
           
@@ -93,8 +116,8 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
             text.textContent = weight.toFixed(2);
             
             // If in animation phase, add effects
-            if (animationPhase === 'forward-input' && layerIndex === 0) {
-              // Input layer to hidden layer phase: Show input value * weight
+            if (animationPhase === 'forward-input-to-hidden-1' && layerIndex === 0 && j === 0) {
+              // Input to first hidden node
               const sourceValue = document.getElementById(`node-${layerIndex}-${i}`)?.innerText || '';
               
               if (sourceValue) {
@@ -106,8 +129,8 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
                 bg.setAttribute('width', 80);
                 bg.setAttribute('x', midX - 40);
               }
-            } else if (animationPhase === 'forward-hidden' && layerIndex === 1) {
-              // Hidden layer to output layer phase: Show hidden layer value * weight
+            } else if (animationPhase === 'forward-input-to-hidden-2' && layerIndex === 0 && j === 1) {
+              // Input to second hidden node
               const sourceValue = document.getElementById(`node-${layerIndex}-${i}`)?.innerText || '';
               
               if (sourceValue) {
@@ -119,8 +142,8 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
                 bg.setAttribute('width', 80);
                 bg.setAttribute('x', midX - 40);
               }
-            } else if (animationPhase === 'apply-input' && layerIndex === 0) {
-              // Apply mode phase 1: Show only input layer to hidden layer calculations
+            } else if (animationPhase === 'forward-input-to-hidden-3' && layerIndex === 0 && j === 2) {
+              // Input to third hidden node
               const sourceValue = document.getElementById(`node-${layerIndex}-${i}`)?.innerText || '';
               
               if (sourceValue) {
@@ -132,21 +155,8 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
                 bg.setAttribute('width', 80);
                 bg.setAttribute('x', midX - 40);
               }
-            } else if (animationPhase === 'apply-hidden' && layerIndex === 1) {
-              // Apply mode phase 2: Show hidden layer to output layer calculations
-              const sourceValue = document.getElementById(`node-${layerIndex}-${i}`)?.innerText || '';
-              
-              if (sourceValue) {
-                text.textContent = `${sourceValue} * ${weight.toFixed(2)}`;
-                text.setAttribute('font-size', '16px');
-                text.setAttribute('font-weight', 'bold');
-                
-                // Update background to fit longer text
-                bg.setAttribute('width', 80);
-                bg.setAttribute('x', midX - 40);
-              }
-            } else if (animationPhase === 'apply') {
-              // Apply mode animation: Show all values * weights (keep old logic for compatibility)
+            } else if (animationPhase === 'forward-hidden-to-output' && layerIndex === 1) {
+              // Hidden layer to output layer
               const sourceValue = document.getElementById(`node-${layerIndex}-${i}`)?.innerText || '';
               
               if (sourceValue) {
@@ -159,6 +169,7 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
                 bg.setAttribute('x', midX - 40);
               }
             } else if (animationPhase === 'backward') {
+              // 使用传入的oldW1和oldW2而不是当前的W1和W2
               let oldWeight;
               if (layerIndex === 0 && oldW1) {
                 oldWeight = oldW1[j][i];
@@ -194,7 +205,7 @@ const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSi
     drawConnections();
     window.addEventListener('resize', drawConnections);
     return () => window.removeEventListener('resize', drawConnections);
-  }, [W1, W2, animationPhase]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [W1, W2, animationPhase, visibleConnections]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Box

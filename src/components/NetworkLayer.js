@@ -33,7 +33,15 @@ const NodesContainer = styled(Box)(({ theme }) => ({
   gap: '25px',
 }));
 
-const NetworkLayer = ({ layerIndex, layerName, size, values = [], visible = true }) => {
+const NetworkLayer = ({ 
+  layerIndex, 
+  layerName, 
+  size, 
+  values = [], 
+  visible = true, 
+  visibleNodes = null,
+  animationStep = 0
+}) => {
   return (
     <LayerContainer visible={visible}>
       <LayerTitle 
@@ -43,14 +51,19 @@ const NetworkLayer = ({ layerIndex, layerName, size, values = [], visible = true
         {layerName}
       </LayerTitle>
       <NodesContainer>
-        {Array.from({ length: size }).map((_, i) => (
-          <NeuronNode
-            key={i}
-            id={`node-${layerIndex}-${i}`}
-            value={values[i] || ''}
-            visible={visible}
-          />
-        ))}
+        {Array.from({ length: size }).map((_, i) => {
+          // 如果传入了visibleNodes，则使用它来控制每个节点的可见性
+          const nodeVisible = visibleNodes ? visibleNodes[i] : visible;
+          
+          return (
+            <NeuronNode
+              key={i}
+              id={`node-${layerIndex}-${i}`}
+              value={nodeVisible ? (values[i] || '') : ''}
+              visible={nodeVisible}
+            />
+          );
+        })}
       </NodesContainer>
     </LayerContainer>
   );
