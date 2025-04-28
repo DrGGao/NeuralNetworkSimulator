@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { findMinMaxWeights, getWeightColor } from '../utils/neuralNetworkUtils';
 
-const ConnectionLines = ({ W1, W2, inputSize, hiddenSize, outputSize, showValues = true, animationPhase = null }) => {
+const ConnectionLines = ({ W1, W2, oldW1, oldW2, inputSize, hiddenSize, outputSize, showValues = true, animationPhase = null }) => {
   const svgRef = useRef(null);
 
   const drawConnections = () => {
@@ -159,15 +159,21 @@ const ConnectionLines = ({ W1, W2, inputSize, hiddenSize, outputSize, showValues
                 bg.setAttribute('x', midX - 40);
               }
             } else if (animationPhase === 'backward') {
-              const oldWeight = layerIndex === 0 ? W1[j][i] : W2[j][i];
-              if (oldWeight !== weight) {
-                text.textContent = `${oldWeight.toFixed(2)} → ${weight.toFixed(2)}`;
+              let oldWeight;
+              if (layerIndex === 0 && oldW1) {
+                oldWeight = oldW1[j][i];
+              } else if (layerIndex === 1 && oldW2) {
+                oldWeight = oldW2[j][i];
+              }
+              
+              if (oldWeight !== undefined && Math.abs(oldWeight - weight) > 0.001) {
+                text.textContent = `${oldWeight.toFixed(2)}==>${weight.toFixed(2)}`;
                 text.setAttribute('font-size', '16px');
                 text.setAttribute('font-weight', 'bold');
                 
                 // Update background to fit longer text
-                bg.setAttribute('width', 80);
-                bg.setAttribute('x', midX - 40);
+                bg.setAttribute('width', 90);
+                bg.setAttribute('x', midX - 45);
               }
             }
             

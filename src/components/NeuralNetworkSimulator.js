@@ -59,6 +59,7 @@ const NeuralNetworkSimulator = () => {
     output: false
   });
   const [animationPhase, setAnimationPhase] = useState(null);
+  const [oldWeights, setOldWeights] = useState(null);
   const [learningRate, setLearningRate] = useState(0.1);
   const [targetValue, setTargetValue] = useState(3.0);
   const [forwardDisabled, setForwardDisabled] = useState(false);
@@ -193,6 +194,12 @@ const NeuralNetworkSimulator = () => {
       setWeights(safeWeights);
     }
     
+    // Save original weights for animation
+    setOldWeights({
+      W1: weights.W1.map(row => [...row]),
+      W2: weights.W2.map(row => [...row])
+    });
+    
     setAnimationPhase('backward');
     
     // Calculate backpropagation
@@ -206,58 +213,29 @@ const NeuralNetworkSimulator = () => {
       learningRate
     );
     
-    // Longer transition for smoother animation
-    const transitionTime = 2000; // 2 seconds
-    const updateInterval = 50; // Update every 50ms
-    const steps = 20; // Total animation steps
-    
-    // Store original weights for animation
-    const originalW1 = weights.W1.map(row => [...row]);
-    const originalW2 = weights.W2.map(row => [...row]);
-    
-    // Animate weight updates
-    let step = 0;
-    const animateWeights = setInterval(() => {
-      step++;
-      
-      // Gradually update weights from original to new values
-      const animatedW1 = originalW1.map((row, i) => 
-        row.map((w, j) => w + ((newW1[i][j] - w) * step) / steps)
-      );
-      
-      const animatedW2 = originalW2.map((row, i) => 
-        row.map((w, j) => w + ((newW2[i][j] - w) * step) / steps)
-      );
-      
+    // First show the transition text for 0.5 seconds
+    setTimeout(() => {
+      // After 0.5 seconds, directly update weights to new values
       setWeights({
-        W1: animatedW1,
-        W2: animatedW2
+        W1: newW1,
+        W2: newW2
       });
       
-      if (step >= steps) {
-        clearInterval(animateWeights);
+      // End animation phase after transition is complete
+      setTimeout(() => {
+        setAnimationPhase(null);
+        setOldWeights(null);
         
-        // Set final weights
-        setWeights({
-          W1: newW1,
-          W2: newW2
-        });
+        // Keep all layers visible, but enable forward button for next round
+        // and disable backward button
+        setForwardDisabled(false);
+        setBackwardDisabled(true);
         
-        // End animation phase without hiding layers
-        setTimeout(() => {
-          setAnimationPhase(null);
-          
-          // Keep all layers visible, but enable forward button for next round
-          // and disable backward button
-          setForwardDisabled(false);
-          setBackwardDisabled(true);
-          
-          // Recalculate outputs with new weights to show updated network state
-          const { A1, A2 } = forwardPropagation(inputs, weights);
-          setLayerOutputs({ A1, A2 });
-        }, transitionTime);
-      }
-    }, updateInterval);
+        // Recalculate outputs with new weights to show updated network state
+        const { A1, A2 } = forwardPropagation(inputs, { W1: newW1, W2: newW2 });
+        setLayerOutputs({ A1, A2 });
+      }, 1500);
+    }, 500); // Display transition text for 0.5 seconds
   };
   
   // Apply network function for apply mode
@@ -371,6 +349,8 @@ const NeuralNetworkSimulator = () => {
           <ConnectionLines 
             W1={weights.W1} 
             W2={weights.W2} 
+            oldW1={oldWeights?.W1}
+            oldW2={oldWeights?.W2}
             inputSize={inputSize} 
             hiddenSize={hiddenSize} 
             outputSize={outputSize}
