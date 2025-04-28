@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useLanguage } from '../utils/languageContext';
 
 const TargetPaper = styled(Paper)(({ theme }) => ({
   position: 'absolute',
@@ -18,6 +19,8 @@ const TargetPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const TargetValueDisplay = ({ targetValue, mode = "train" }) => {
+  const { t } = useLanguage();
+  
   // Do not display target value in apply mode
   if (mode === "apply") {
     return null;
@@ -26,7 +29,7 @@ const TargetValueDisplay = ({ targetValue, mode = "train" }) => {
   return (
     <TargetPaper elevation={2}>
       <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-        Target Output Value
+        {t('targetOutputValue')}
       </Typography>
       <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
         {targetValue.toFixed(3)}

@@ -10,6 +10,7 @@ import {
   Divider
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useLanguage } from '../utils/languageContext';
 
 const ControlPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -59,21 +60,23 @@ const ControlPanel = ({
   backwardDisabled,
   mode
 }) => {
+  const { t } = useLanguage();
+  
   // Render different control panels based on the mode
   return (
     <ControlPaper elevation={3}>
       <Typography variant="h6" color="primary" gutterBottom sx={{ fontWeight: 600 }}>
-        {mode === "train" ? "Neural Network Control Panel" : "Neural Network Application"}
+        {mode === "train" ? t('trainingMode') : t('applyMode')}
       </Typography>
       
       <Grid container spacing={3}>
         {/* Input section is common for both modes */}
         <Grid item xs={12} md={6}>
           <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" gutterBottom>Input Values</Typography>
+            <Typography variant="subtitle2" gutterBottom>{t('inputs')}</Typography>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <TextField
-                label="Input 1"
+                label={t('input1')}
                 type="number"
                 size="small"
                 value={input1}
@@ -82,7 +85,7 @@ const ControlPanel = ({
                 InputProps={{ inputProps: { step: 0.1 } }}
               />
               <TextField
-                label="Input 2"
+                label={t('input2')}
                 type="number"
                 size="small"
                 value={input2}
@@ -96,7 +99,7 @@ const ControlPanel = ({
           {/* Learning rate section - only visible in training mode */}
           {mode === "train" && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" gutterBottom>Learning Rate</Typography>
+              <Typography variant="subtitle2" gutterBottom>{t('learningRate')}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
                 <Typography variant="body2" sx={{ width: '60px' }}>0.01</Typography>
                 <Slider
@@ -111,7 +114,7 @@ const ControlPanel = ({
               </Box>
               <Box sx={{ textAlign: 'center', mt: 1 }}>
                 <Typography variant="body2" color="textSecondary">
-                  Current Value: {learningRate}
+                  {t('learningRate')}: {learningRate}
                 </Typography>
               </Box>
             </Box>
@@ -123,9 +126,9 @@ const ControlPanel = ({
           <Box sx={{ mb: 3 }}>
             {mode === "train" ? (
               <>
-                <Typography variant="subtitle2" gutterBottom>Target Value</Typography>
+                <Typography variant="subtitle2" gutterBottom>{t('targetValue')}</Typography>
                 <TextField
-                  label="Target Output Value"
+                  label={t('targetOutputValue')}
                   type="number"
                   size="small"
                   value={targetValue}
@@ -137,7 +140,7 @@ const ControlPanel = ({
               </>
             ) : (
               <>
-                <Typography variant="subtitle2" gutterBottom>Output Value</Typography>
+                <Typography variant="subtitle2" gutterBottom>{t('outputValue')}</Typography>
                 <OutputValueContainer>
                   <Typography variant="h5" color="primary" fontWeight="bold">
                     {outputValue === 0 ? (
@@ -148,7 +151,7 @@ const ControlPanel = ({
                   </Typography>
                   {outputValue !== 0 && (
                     <Typography variant="caption" color="textSecondary">
-                      Calculated from network
+                      {t('calculatedFromNetwork')}
                     </Typography>
                   )}
                 </OutputValueContainer>
@@ -159,7 +162,7 @@ const ControlPanel = ({
           {/* Weight initialization section - only visible in training mode */}
           {mode === "train" && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" gutterBottom>Weight Initialization</Typography>
+              <Typography variant="subtitle2" gutterBottom>{t('weightsInitialization')}</Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <StyledButton 
                   variant="outlined" 
@@ -167,7 +170,7 @@ const ControlPanel = ({
                   onClick={onGoodInitialization}
                   fullWidth
                 >
-                  Good Initialization
+                  {t('goodInitialization')}
                 </StyledButton>
                 <StyledButton 
                   variant="outlined" 
@@ -175,7 +178,7 @@ const ControlPanel = ({
                   onClick={onBadInitialization}
                   fullWidth
                 >
-                  Bad Initialization
+                  {t('badInitialization')}
                 </StyledButton>
               </Box>
             </Box>
@@ -196,7 +199,7 @@ const ControlPanel = ({
               disabled={forwardDisabled}
               sx={{ fontSize: '16px' }}
             >
-              Forward Propagation
+              {t('forwardPropagation')}
             </StyledButton>
             <StyledButton 
               variant="contained" 
@@ -205,7 +208,7 @@ const ControlPanel = ({
               disabled={backwardDisabled}
               sx={{ fontSize: '16px' }}
             >
-              Backpropagation
+              {t('backwardPropagation')}
             </StyledButton>
           </>
         ) : (
@@ -216,7 +219,7 @@ const ControlPanel = ({
             fullWidth
             sx={{ fontSize: '16px', py: 1.5 }}
           >
-            Apply Now
+            {t('applyNetwork')}
           </StyledButton>
         )}
       </Box>

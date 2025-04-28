@@ -5,6 +5,7 @@ import NetworkLayer from './NetworkLayer';
 import ConnectionLines from './ConnectionLines';
 import ControlPanel from './ControlPanel';
 import TargetValueDisplay from './TargetValueDisplay';
+import { useLanguage } from '../utils/languageContext';
 import { 
   goodWeights, 
   badWeights, 
@@ -28,6 +29,9 @@ const NetworkContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const NeuralNetworkSimulator = () => {
+  // 获取翻译函数
+  const { t } = useLanguage();
+  
   // Neural network structure
   const inputSize = 2;
   const hiddenSize = 3;
@@ -459,10 +463,10 @@ const NeuralNetworkSimulator = () => {
           aria-label="Mode Selection"
         >
           <ToggleButton value="train" aria-label="Training Mode">
-            Training Mode
+            {t('trainingMode')}
           </ToggleButton>
           <ToggleButton value="apply" aria-label="Apply Mode">
-            Apply Mode
+            {t('applyMode')}
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
@@ -492,7 +496,7 @@ const NeuralNetworkSimulator = () => {
           
           <NetworkLayer 
             layerIndex={0} 
-            layerName="Input Layer" 
+            layerName={t('inputLayer')} 
             size={inputSize} 
             values={inputs} 
             visible={visibleLayers.input} 
@@ -500,7 +504,7 @@ const NeuralNetworkSimulator = () => {
           
           <NetworkLayer 
             layerIndex={1} 
-            layerName="Hidden Layer" 
+            layerName={t('hiddenLayer')} 
             size={hiddenSize} 
             values={layerOutputs.A1} 
             visible={visibleLayers.hidden}
@@ -510,7 +514,7 @@ const NeuralNetworkSimulator = () => {
           
           <NetworkLayer 
             layerIndex={2} 
-            layerName="Output Layer" 
+            layerName={t('outputLayer')} 
             size={outputSize} 
             values={layerOutputs.A2} 
             visible={visibleLayers.output}
