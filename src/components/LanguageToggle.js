@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton, Tooltip, Box } from '@mui/material';
 import { useLanguage } from '../utils/languageContext';
 
-// 中英文图标
+// Language icons
 const EnglishIcon = () => (
   <Box sx={{ 
     width: 24, 

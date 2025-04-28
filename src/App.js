@@ -28,7 +28,7 @@ const theme = createTheme({
   },
 });
 
-// 应用内容组件，可以访问语言上下文
+// Application content component with access to language context
 const AppContent = () => {
   const { t } = useLanguage();
   

@@ -29,7 +29,7 @@ const NetworkContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const NeuralNetworkSimulator = () => {
-  // 获取翻译函数
+  // Get translation function
   const { t } = useLanguage();
   
   // Neural network structure
@@ -126,13 +126,13 @@ const NeuralNetworkSimulator = () => {
     // Calculate forward propagation results
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // 创建每个步骤显示的层输出
+    // Create step outputs for each animation phase
     const stepOutputs = [
-      { A1: [0, 0, 0], A2: [0] },  // 初始状态
-      { A1: [A1[0], 0, 0], A2: [0] },  // 显示第一个隐藏节点
-      { A1: [A1[0], A1[1], 0], A2: [0] },  // 显示第二个隐藏节点
-      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // 显示第三个隐藏节点
-      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 显示输出节点
+      { A1: [0, 0, 0], A2: [0] },  // Initial state
+      { A1: [A1[0], 0, 0], A2: [0] },  // Show first hidden node
+      { A1: [A1[0], A1[1], 0], A2: [0] },  // Show second hidden node
+      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // Show third hidden node
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // Show output node
     ];
     
     // Reset animation state
@@ -146,7 +146,7 @@ const NeuralNetworkSimulator = () => {
       hiddenToOutput: [[false, false, false]]
     });
     
-    // 设置初始层输出为第一步
+    // Set initial layer outputs to first step
     setLayerOutputs(stepOutputs[0]);
     
     // Make sure input layer is visible and others are hidden initially
@@ -302,13 +302,13 @@ const NeuralNetworkSimulator = () => {
     // Calculate output but don't display immediately
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // 创建每个步骤显示的层输出
+    // Create step outputs for each animation phase
     const stepOutputs = [
-      { A1: [0, 0, 0], A2: [0] },  // 初始状态
-      { A1: [A1[0], 0, 0], A2: [0] },  // 显示第一个隐藏节点
-      { A1: [A1[0], A1[1], 0], A2: [0] },  // 显示第二个隐藏节点
-      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // 显示第三个隐藏节点
-      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 显示输出节点
+      { A1: [0, 0, 0], A2: [0] },  // Initial state
+      { A1: [A1[0], 0, 0], A2: [0] },  // Show first hidden node
+      { A1: [A1[0], A1[1], 0], A2: [0] },  // Show second hidden node
+      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // Show third hidden node
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // Show output node
     ];
     
     // Reset animation state
@@ -322,7 +322,7 @@ const NeuralNetworkSimulator = () => {
       hiddenToOutput: [[false, false, false]]
     });
     
-    // 设置初始层输出为第一步
+    // Set initial layer outputs to first step
     setLayerOutputs(stepOutputs[0]);
     
     // Make sure input layer is visible and others are hidden initially

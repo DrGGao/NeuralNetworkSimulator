@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// 创建语言上下文
+// Create language context
 export const LanguageContext = createContext();
 
-// 语言数据
+// Translation data
 export const translations = {
   en: {
     // App
@@ -75,15 +75,15 @@ export const translations = {
   }
 };
 
-// 语言提供器组件
+// Language provider component
 export const LanguageProvider = ({ children }) => {
-  // 从本地存储获取初始语言，如果没有则默认为英文
+  // Get initial language from local storage, default to English if not found
   const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem('language');
     return savedLanguage || 'en';
   });
   
-  // 切换语言函数
+  // Toggle language function
   const toggleLanguage = () => {
     setLanguage(prevLang => {
       const newLang = prevLang === 'en' ? 'zh' : 'en';
@@ -92,7 +92,7 @@ export const LanguageProvider = ({ children }) => {
     });
   };
   
-  // 获取翻译函数
+  // Translation lookup function
   const t = (key) => {
     return translations[language][key] || key;
   };
@@ -104,7 +104,7 @@ export const LanguageProvider = ({ children }) => {
   );
 };
 
-// 自定义钩子，方便在组件中使用
+// Custom hook for easier access in components
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
