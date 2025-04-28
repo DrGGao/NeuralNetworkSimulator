@@ -31,16 +31,20 @@ export const ReLUDerivative = (x) => {
 export const forwardPropagation = (inputs, weights) => {
   const { W1, W2 } = weights;
   
-  console.log('Forward propagation inputs:', inputs);
+  // 确保输入不含NaN值
+  const safeInputs = inputs.map(input => isNaN(input) ? 0 : input);
+  
+  console.log('Forward propagation inputs:', safeInputs);
   console.log('W1:', W1);
   console.log('W2:', W2);
   
   // Calculate hidden layer outputs
   const A1 = W1.map((weights, idx) => {
     const sum = weights.reduce((sum, weight, i) => {
-      const product = weight * inputs[i];
-      console.log(`W1[${idx}][${i}] * inputs[${i}] = ${weight} * ${inputs[i]} = ${product}`);
-      return sum + product;
+      const input = safeInputs[i] || 0;
+      const product = weight * input;
+      console.log(`W1[${idx}][${i}] * inputs[${i}] = ${weight} * ${input} = ${product}`);
+      return isNaN(sum + product) ? sum : sum + product;
     }, 0);
     console.log(`Hidden node ${idx} sum before ReLU:`, sum);
     const activated = ReLU(sum);
@@ -53,12 +57,14 @@ export const forwardPropagation = (inputs, weights) => {
   // Calculate output layer outputs
   const A2 = W2.map((weights, idx) => {
     const sum = weights.reduce((sum, weight, i) => {
-      const product = weight * A1[i];
-      console.log(`W2[${idx}][${i}] * A1[${i}] = ${weight} * ${A1[i]} = ${product}`);
+      const a1 = A1[i] || 0;
+      const product = weight * a1;
+      console.log(`W2[${idx}][${i}] * A1[${i}] = ${weight} * ${a1} = ${product}`);
       if (isNaN(product)) {
         console.error('NaN detected in product calculation!');
+        return sum; // 忽略NaN值
       }
-      return sum + product;
+      return isNaN(sum + product) ? sum : sum + product;
     }, 0);
     console.log(`Output node ${idx} sum before ReLU:`, sum);
     if (isNaN(sum)) {
@@ -71,7 +77,7 @@ export const forwardPropagation = (inputs, weights) => {
   
   console.log('Output layer results (A2):', A2);
 
-  return { inputs, A1, A2 };
+  return { inputs: safeInputs, A1, A2 };
 };
 
 // Backward propagation
