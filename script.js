@@ -261,18 +261,11 @@ function ForwardresizeWeightText() {
             setTimeout(() => {
                 weightTextElements.forEach(text => {
                     text.style.fontSize = '12px';
-
-                    // text.textContent = extractAfterAsterisk(text.textContent);
-                    // console.log(text.textContent);
-                    // if(text.textContent.slice(-5)[0] == '-')
-                    //     text.textContent = text.textContent.slice(-5);
-                    // else
-                    //     text.textContent = text.textContent.slice(-4);
                     text.textContent = extractAfterAsterisk(text.textContent);
                 });
 
                 document.getElementById(`node-1-${index2}`).style.color = 'black';
-            }, 1500);
+            }, 6000);
 
         } else {
             console.error('Class name format is incorrect:', className);
@@ -298,22 +291,16 @@ function ForwardresizeWeightText() {
                 setTimeout(() => {
                     weightTextElements.forEach(text => {
                         text.style.fontSize = '12px';
-                        // text.textContent = extractAfterAsterisk(text.textContent);
-                        // console.log(text.textContent);
-                        // if(text.textContent.slice(-5)[0] == '-')
-                        //     text.textContent = text.textContent.slice(-5);
-                        // else
-                        //     text.textContent = text.textContent.slice(-4);
                         text.textContent = extractAfterAsterisk(text.textContent);
                     });
                     document.getElementById(`node-2-${index2}`).style.color = 'black';
-                }, 1500);
+                }, 3000);
 
             } else {
                 console.error('Class name format is incorrect:', className);
             }
         });
-    }, 3000);
+    }, 6000);
 }
 
 function resizeWeightText() {
@@ -328,22 +315,14 @@ function resizeWeightText() {
             const i = parseInt(match[1], 10);
             const index1 = parseInt(match[2], 10);
             const index2 = parseInt(match[3], 10);
-            //.log([i, index1, index2])
             // Update the text content to be the sum of i, index1, and index2
             text.textContent = W2_before[index2][index1].toFixed(2) + '->' + W2[index2][index1].toFixed(2);
-            //console.log(text.textContent);
             setTimeout(() => {
                 weightTextElements.forEach(text => {
                     text.style.fontSize = '12px';
-
                     text.textContent = extractAfterArrowRegex(text.textContent);
-                    //console.log(text.textContent);
-                    // if(text.textContent.slice(-5)[0] == '-')
-                    //     text.textContent = text.textContent.slice(-5);
-                    // else
-                    // text.textContent = text.textContent.slice(-4);
                 });
-            }, 1500);
+            }, 12000);
 
         } else {
             console.error('Class name format is incorrect:', className);
@@ -357,31 +336,23 @@ function resizeWeightText() {
             text.style.fontSize = '20px';  // Set larger size
             const className = text.getAttribute('class');
             const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
-            //.log(className);
             if (match) {
                 const i = parseInt(match[1], 10);
                 const index1 = parseInt(match[2], 10);
                 const index2 = parseInt(match[3], 10);
-                // console output
-                //console.log([i, index1, index2])
-                // Update the text content to be the sum of i, index1, and index2
-
                 text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
-                //console.log(text.textContent);
                 setTimeout(() => {
                     weightTextElements.forEach(text => {
                         text.style.fontSize = '12px';
                         text.textContent = extractAfterArrowRegex(text.textContent);
-
-                        // text.textContent = text.textContent.slice(-4);
                     });
-                }, 1500);
+                }, 12000);
 
             } else {
                 console.error('Class name format is incorrect:', className);
             }
         });
-    }, 1500);
+    }, 12000);
 }
 
 function findMinMaxWeights(W1, W2) {
