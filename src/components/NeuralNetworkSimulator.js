@@ -257,9 +257,7 @@ const NeuralNetworkSimulator = () => {
       W2: weights.W2.map(row => [...row])
     });
     
-    setAnimationPhase('backward');
-    
-    // Calculate backpropagation
+    // 计算反向传播
     const { newW1, newW2 } = backwardPropagation(
       inputs,
       layerOutputs.A1,
@@ -270,25 +268,82 @@ const NeuralNetworkSimulator = () => {
       learningRate
     );
     
-    // First show the transition text for 0.5 seconds
+    // 实现分阶段反向传播动画
+    
+    // 第一阶段：输出层到隐藏层（W2权重更新）
+    setAnimationPhase('backward-phase1');
+    
+    // 创建视觉提示
+    const statusMessage = document.createElement('div');
+    statusMessage.style.position = 'fixed';
+    statusMessage.style.top = '10px';
+    statusMessage.style.left = '50%';
+    statusMessage.style.transform = 'translateX(-50%)';
+    statusMessage.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+    statusMessage.style.color = 'white';
+    statusMessage.style.padding = '10px 20px';
+    statusMessage.style.borderRadius = '5px';
+    statusMessage.style.fontWeight = 'bold';
+    statusMessage.style.fontSize = '18px';
+    statusMessage.style.zIndex = '1000';
+    statusMessage.style.transition = 'opacity 0.5s';
+    statusMessage.id = 'phase-status';
+    statusMessage.textContent = t('backpropagationPhase1'); // "第一阶段：输出层到隐藏层的反向传播"
+    document.body.appendChild(statusMessage);
+    
+    // 2秒后开始第一阶段动画
     setTimeout(() => {
-      // After 0.5 seconds, directly update weights to new values
+      // 只更新W2权重
       setWeights({
-        W1: newW1,
-        W2: newW2
+        W1: weights.W1, // 保持W1不变
+        W2: newW2       // 只更新W2
       });
       
-      // End animation phase after transition is complete
+      // 5秒后进入第二阶段
       setTimeout(() => {
-        setAnimationPhase(null);
-        setOldWeights(null);
+        // 更新视觉提示
+        const phaseStatus = document.getElementById('phase-status');
+        if (phaseStatus) {
+          phaseStatus.textContent = t('backpropagationPhase2'); // "第二阶段：隐藏层到输入层的反向传播"
+        }
         
-        // Keep all layers visible, but enable forward button for next round
-        // and disable backward button
-        setForwardDisabled(false);
-        setBackwardDisabled(true);
-      }, 1500);
-    }, 500); // Display transition text for 0.5 seconds
+        // 设置第二阶段动画状态
+        setAnimationPhase('backward-phase2');
+        
+        // 保存W2的新值和W1的原始值
+        setOldWeights({
+          W1: weights.W1.map(row => [...row]),
+          W2: newW2.map(row => [...row])
+        });
+        
+        // 2秒后开始第二阶段动画
+        setTimeout(() => {
+          // 完成所有权重更新
+          setWeights({
+            W1: newW1,
+            W2: newW2
+          });
+          
+          // 5秒后结束动画
+          setTimeout(() => {
+            // 移除视觉提示
+            const phaseStatus = document.getElementById('phase-status');
+            if (phaseStatus) {
+              phaseStatus.style.opacity = '0';
+              setTimeout(() => phaseStatus.remove(), 500);
+            }
+            
+            // 结束动画阶段
+            setAnimationPhase(null);
+            setOldWeights(null);
+            
+            // 重新启用前向传播按钮，禁用反向传播按钮
+            setForwardDisabled(false);
+            setBackwardDisabled(true);
+          }, 5000);
+        }, 2000);
+      }, 5000);
+    }, 2000);
   };
   
   // Apply network function for apply mode

@@ -3,7 +3,7 @@ import { Box, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 // Style the neuron node
-const NeuronPaper = styled(Paper)(({ theme, nodeVisible }) => ({
+const NeuronPaper = styled(Paper)(({ theme, 'data-node-visible': nodeVisible }) => ({
   width: '70px',
   height: '70px',
   borderRadius: '50%',
@@ -22,7 +22,7 @@ const NeuronPaper = styled(Paper)(({ theme, nodeVisible }) => ({
   },
 }));
 
-const ValueText = styled(Box)(({ theme, visible }) => ({
+const ValueText = styled(Box)(({ theme, 'data-visible': visible }) => ({
   transition: 'all 0.8s ease-in-out',
   opacity: visible ? 1 : 0,
   transform: visible ? 'scale(1)' : 'scale(0.5)',
@@ -43,7 +43,7 @@ const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
     <NeuronPaper 
       id={id} 
       elevation={3}
-      nodeVisible={visible}
+      data-node-visible={visible}
       sx={{
         backgroundColor: activeColor,
         transition: 'background-color 0.8s ease-in-out, box-shadow 0.5s ease-in-out, opacity 0.5s ease-in-out',
@@ -54,7 +54,7 @@ const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
     >
       <ValueText 
         component="span" 
-        visible={visible}
+        data-visible={visible}
       >
         {visible ? (safeValue === 0 && value === '' ? '' : safeValue.toFixed(2)) : ''}
       </ValueText>

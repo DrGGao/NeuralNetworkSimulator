@@ -87,7 +87,31 @@ const ConnectionLines = ({
           line.setAttribute('x2', toPos.x);
           line.setAttribute('y2', toPos.y);
           line.setAttribute('stroke', color);
-          line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1); // Line width affected by weight magnitude
+          
+          // 为反向传播阶段设置不同的线条样式
+          if (animationPhase === 'backward-phase1') {
+            // 在第一阶段，突出W2连接，弱化W1连接
+            if (layerIndex === 1) { // W2连接：隐藏层到输出层
+              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2); // 更粗的线
+              line.setAttribute('opacity', '1');
+            } else if (layerIndex === 0) { // W1连接：输入层到隐藏层
+              line.setAttribute('stroke-width', Math.abs(weight) * 1 + 1); 
+              line.setAttribute('opacity', '0.3'); // 半透明
+            }
+          } else if (animationPhase === 'backward-phase2') {
+            // 在第二阶段，突出W1连接，W2连接保持正常
+            if (layerIndex === 0) { // W1连接：输入层到隐藏层
+              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2); // 更粗的线
+              line.setAttribute('opacity', '1');
+            } else if (layerIndex === 1) { // W2连接：隐藏层到输出层
+              line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
+              line.setAttribute('opacity', '1');
+            }
+          } else {
+            // 其他情况使用默认线宽
+            line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
+          }
+          
           svg.appendChild(line);
           
           if (showValues) {
@@ -168,8 +192,47 @@ const ConnectionLines = ({
                 bg.setAttribute('width', 80);
                 bg.setAttribute('x', midX - 40);
               }
+            } else if (animationPhase === 'backward-phase1' && layerIndex === 1) {
+              // 在第一阶段只显示W2权重变化
+              let oldWeight;
+              if (oldW2) {
+                oldWeight = oldW2[j][i];
+              }
+              
+              if (oldWeight !== undefined && Math.abs(oldWeight - weight) > 0.001) {
+                text.textContent = `${oldWeight.toFixed(2)}→${weight.toFixed(2)}`;
+                text.setAttribute('font-size', '16px');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('opacity', '1');
+                
+                // 更新背景以适应更长的文本
+                bg.setAttribute('width', 90);
+                bg.setAttribute('x', midX - 45);
+              }
+              
+              // 使W1权重文本半透明
+              if (layerIndex === 0) {
+                text.setAttribute('opacity', '0.3');
+                bg.setAttribute('opacity', '0.3');
+              }
+            } else if (animationPhase === 'backward-phase2' && layerIndex === 0) {
+              // 在第二阶段只显示W1权重变化
+              let oldWeight;
+              if (oldW1) {
+                oldWeight = oldW1[j][i];
+              }
+              
+              if (oldWeight !== undefined && Math.abs(oldWeight - weight) > 0.001) {
+                text.textContent = `${oldWeight.toFixed(2)}→${weight.toFixed(2)}`;
+                text.setAttribute('font-size', '16px');
+                text.setAttribute('font-weight', 'bold');
+                
+                // 更新背景以适应更长的文本
+                bg.setAttribute('width', 90);
+                bg.setAttribute('x', midX - 45);
+              }
             } else if (animationPhase === 'backward') {
-              // 使用传入的oldW1和oldW2而不是当前的W1和W2
+              // 兼容老的backward动画阶段
               let oldWeight;
               if (layerIndex === 0 && oldW1) {
                 oldWeight = oldW1[j][i];
@@ -178,7 +241,7 @@ const ConnectionLines = ({
               }
               
               if (oldWeight !== undefined && Math.abs(oldWeight - weight) > 0.001) {
-                text.textContent = `${oldWeight.toFixed(2)}==>${weight.toFixed(2)}`;
+                text.textContent = `${oldWeight.toFixed(2)}→${weight.toFixed(2)}`;
                 text.setAttribute('font-size', '16px');
                 text.setAttribute('font-weight', 'bold');
                 

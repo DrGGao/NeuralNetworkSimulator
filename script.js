@@ -111,6 +111,7 @@ function createLayer(size, layerIndex, layerName) {
 }
 
 
+
 // Add layers to the network
 network.appendChild(createLayer(inputSize, 0, 'Input Layer')); // Input layer
 network.appendChild(createLayer(hiddenSize, 1, 'Hidden Layer')); // Hidden layer
@@ -303,11 +304,19 @@ function ForwardresizeWeightText() {
     }, 6000);
 }
 
-function resizeWeightText() {
+function resizeOutputLayerWeights() {
     const weightTextElements = document.querySelectorAll('[class^="weight-text#1"]');
-
+    const weightTextElements0 = document.querySelectorAll('[class^="weight-text#0"]');
+    
+    // 隐藏前层权重文本
+    weightTextElements0.forEach(text => {
+        text.style.opacity = '0';
+    });
+    
+    // 显示后层权重变化
     weightTextElements.forEach(text => {
-        text.style.fontSize = '20px';  // Set larger size
+        text.style.fontSize = '20px';
+        text.style.opacity = '1';
         const className = text.getAttribute('class');
         const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
 
@@ -315,44 +324,44 @@ function resizeWeightText() {
             const i = parseInt(match[1], 10);
             const index1 = parseInt(match[2], 10);
             const index2 = parseInt(match[3], 10);
-            // Update the text content to be the sum of i, index1, and index2
             text.textContent = W2_before[index2][index1].toFixed(2) + '->' + W2[index2][index1].toFixed(2);
-            setTimeout(() => {
-                weightTextElements.forEach(text => {
-                    text.style.fontSize = '12px';
-                    text.textContent = extractAfterArrowRegex(text.textContent);
-                });
-            }, 12000);
-
-        } else {
-            console.error('Class name format is incorrect:', className);
         }
     });
-
+    
+    // 15秒后缩小文本大小
     setTimeout(() => {
-        const weightTextElements = document.querySelectorAll('[class^="weight-text#0"]');
-
         weightTextElements.forEach(text => {
-            text.style.fontSize = '20px';  // Set larger size
-            const className = text.getAttribute('class');
-            const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
-            if (match) {
-                const i = parseInt(match[1], 10);
-                const index1 = parseInt(match[2], 10);
-                const index2 = parseInt(match[3], 10);
-                text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
-                setTimeout(() => {
-                    weightTextElements.forEach(text => {
-                        text.style.fontSize = '12px';
-                        text.textContent = extractAfterArrowRegex(text.textContent);
-                    });
-                }, 12000);
-
-            } else {
-                console.error('Class name format is incorrect:', className);
-            }
+            text.style.fontSize = '12px';
+            text.textContent = extractAfterArrowRegex(text.textContent);
         });
-    }, 12000);
+    }, 15000);
+}
+
+function resizeInputLayerWeights() {
+    const weightTextElements = document.querySelectorAll('[class^="weight-text#0"]');
+    
+    // 显示前层权重变化
+    weightTextElements.forEach(text => {
+        text.style.fontSize = '20px';
+        text.style.opacity = '1';
+        const className = text.getAttribute('class');
+        const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
+        
+        if (match) {
+            const i = parseInt(match[1], 10);
+            const index1 = parseInt(match[2], 10);
+            const index2 = parseInt(match[3], 10);
+            text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
+        }
+    });
+    
+    // 15秒后缩小文本大小
+    setTimeout(() => {
+        weightTextElements.forEach(text => {
+            text.style.fontSize = '12px';
+            text.textContent = extractAfterArrowRegex(text.textContent);
+        });
+    }, 15000);
 }
 
 function findMinMaxWeights(W1, W2) {
@@ -419,54 +428,292 @@ drawConnections();
 
 // Function to perform backward propagation
 function backwardPropagation() {
-    W1_before = W1;
-    W2_before = W2;
+    // 保存原始权重
+    W1_before = JSON.parse(JSON.stringify(W1));
+    W2_before = JSON.parse(JSON.stringify(W2));
+    
+    // 禁用所有按钮
+    document.getElementById('backward').setAttribute('disabled', true);
+    document.getElementById('forward').disabled = true;
+    document.getElementById('goodInit').disabled = true;
+    document.getElementById('badInit').disabled = true;
+    
+    // 创建阶段指示器
+    createPhaseIndicator("第一阶段：输出层到隐藏层的反向传播");
+    
+    // 计算所有需要的值但只应用第一阶段的更新
     const learningRate = parseFloat(document.getElementById('learningRate').value) || 0.01;
-    const targetValuesInput = document.getElementById('targetValues').value.split(',').map(num => parseFloat(num)) ;
+    const targetValuesInput = document.getElementById('targetValues').value.split(',').map(num => parseFloat(num));
     const targetOutputs = targetValuesInput.length === outputSize ? targetValuesInput : Array(outputSize).fill(0);
-    const tolerance = 0.001;
-
-    //function iterate() {
-        //const { inputs, A1, A2 } = forwardPropagation();
-        //console.log(W2);
-        // Compute output layer error and delta
-        const outputErrors = targetOutputs.map((target, i) => target - A2[i]);
-        //console.log(outputErrors);
-        const outputDeltas = outputErrors.map((error, i) => error * ReLUDerivative(A2[i]));
-        //const outputDeltas = outputErrors.map((error, i) => error * (A2[i]));
-        //console.log(outputDeltas);
-        const hiddenErrors = W2[0].map((w, j) => w * outputDeltas[0]);
-        const hiddenDeltas = hiddenErrors.map((error, i) => error * ReLUDerivative(A1[i]));
-        //console.log(hiddenErrors);
-        // Update output layer weights and biases
-        W2 = W2.map((weights, i) => weights.map((w, j) => w + learningRate * outputDeltas[i] * A1[j]));
-
-
-        // Update hidden layer weights and biases
-        W1 = W1.map((weights, i) => weights.map((w, j) => w + learningRate * hiddenDeltas[i] * inputs[j]));
-
-
-
-        //window.alert(b1);
-        // Redraw the network with updated weights and display the changes
-        //forwardPropagation();
-        document.getElementById('backward').setAttribute('disabled', true);
-        document.getElementById('forward').disabled = false;
-        drawConnections();
-        const currentTargetValue = document.getElementById('targetValues').value;
-        displayTargetValue(currentTargetValue); // Pass the current input value
-        resizeWeightText();
-        //const maxError = Math.max(...outputErrors.map(Math.abs));
-        //if (maxError > tolerance) {
-        //    setTimeout(iterate, 0); // Use setTimeout to avoid freezing the UI
-        //}
-    //}
-
-    //iterate();
-
+    
+    // 计算输出层误差
+    const outputErrors = targetOutputs.map((target, i) => target - A2[i]);
+    const outputDeltas = outputErrors.map((error, i) => error * ReLUDerivative(A2[i]));
+    
+    // 计算隐藏层误差 (现在计算但在第二阶段才使用)
+    const hiddenErrors = W2[0].map((w, j) => w * outputDeltas[0]);
+    const hiddenDeltas = hiddenErrors.map((error, i) => error * ReLUDerivative(A1[i]));
+    
+    // 只更新W2权重
+    const newW2 = W2.map((weights, i) => weights.map((w, j) => w + learningRate * outputDeltas[i] * A1[j]));
+    W2 = newW2;  // 应用W2更新
+    
+    // 创建W1新权重但不立即应用
+    const newW1 = W1.map((weights, i) => weights.map((w, j) => w + learningRate * hiddenDeltas[i] * inputs[j]));
+    
+    // 清除所有现有线条和文本
+    svg.innerHTML = '';
+    
+    // 第一阶段：只显示和动画W2权重
+    executePhase1(newW1);
+    
+    // 存储新的W1值以便在第二阶段使用
+    setTimeout(() => {
+        // 更新到第二阶段
+        createPhaseIndicator("第二阶段：隐藏层到输入层的反向传播");
+        
+        // 应用W1更新并显示第二阶段
+        setTimeout(() => {
+            // 在这里应用W1的更新
+            W1 = newW1;
+            
+            // 开始第二阶段
+            executePhase2();
+            
+        }, 2000);  // 给用户时间阅读新阶段指示
+        
+    }, 20000);  // 第一阶段完成后等待
 }
 
+function createPhaseIndicator(text) {
+    // 移除任何现有的指示器
+    const oldIndicator = document.getElementById('phase-indicator');
+    if (oldIndicator) {
+        oldIndicator.remove();
+    }
+    
+    // 创建新的指示器
+    const indicator = document.createElement('div');
+    indicator.id = 'phase-indicator';
+    indicator.style.position = 'fixed';
+    indicator.style.top = '10px';
+    indicator.style.left = '50%';
+    indicator.style.transform = 'translateX(-50%)';
+    indicator.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+    indicator.style.color = 'white';
+    indicator.style.padding = '10px 20px';
+    indicator.style.borderRadius = '5px';
+    indicator.style.fontWeight = 'bold';
+    indicator.style.fontSize = '18px';
+    indicator.style.zIndex = '1000';
+    indicator.textContent = text;
+    
+    document.body.appendChild(indicator);
+}
 
+function executePhase1(newW1) {
+    // 清除所有现有线条和文本
+    svg.innerHTML = '';
+    
+    // 绘制所有节点以便参考
+    const svgRect = svg.getBoundingClientRect();
+    const layers = document.querySelectorAll('.layer');
+    let yOffset = 10;
+    
+    // 只绘制与W2相关的连接和文本
+    const i = 1; // W2层索引
+    const currentLayer = layers[i].querySelectorAll('.node');
+    const nextLayer = layers[i + 1].querySelectorAll('.node');
+    const maxminvalue = findMinMaxWeights(W1, W2);
+    
+    // 画第一层到第二层的连接(不带权重文本)
+    const j = 0; // W1层索引
+    const firstLayer = layers[j].querySelectorAll('.node');
+    const secondLayer = layers[j + 1].querySelectorAll('.node');
+    
+    firstLayer.forEach((node1, index1) => {
+        const rect1 = node1.getBoundingClientRect();
+        secondLayer.forEach((node2, index2) => {
+            // 只创建线条，没有权重文本
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const weightValue = W1[index2][index1];
+            const color = getWeightColor2(weightValue, maxminvalue);
+            
+            // 修复rect2未定义的问题
+            const rect2 = node2.getBoundingClientRect();
+            
+            line.setAttribute('x1', rect1.left + rect1.width / 2 - svgRect.left);
+            line.setAttribute('y1', rect1.top + rect1.height / 2 - svgRect.top);
+            line.setAttribute('x2', rect2.left + rect2.width / 2 - svgRect.left);
+            line.setAttribute('y2', rect2.top + rect2.height / 2 - svgRect.top);
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', 1);
+            line.setAttribute('stroke-opacity', '0.2');
+            svg.appendChild(line);
+        });
+    });
+    
+    // 画第二层到第三层的连接(带权重文本)
+    currentLayer.forEach((node1, index1) => {
+        const rect1 = node1.getBoundingClientRect();
+        nextLayer.forEach((node2, index2) => {
+            // 画线
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const weightValue = W2[index2][index1];
+            const color = getWeightColor2(weightValue, maxminvalue);
+            
+            // 获取节点矩形
+            const rect2 = node2.getBoundingClientRect();
+            
+            line.setAttribute('x1', rect1.left + rect1.width / 2 - svgRect.left);
+            line.setAttribute('y1', rect1.top + rect1.height / 2 - svgRect.top);
+            line.setAttribute('x2', rect2.left + rect2.width / 2 - svgRect.left);
+            line.setAttribute('y2', rect2.top + rect2.height / 2 - svgRect.top);
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', 4);
+            svg.appendChild(line);
+            
+            // 添加W2权重文本
+            const weightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            const midpointx = rect1.left + 0.6 * (rect2.left - rect1.left) + rect1.width / 2 - svgRect.left;
+            const midpointy = rect1.top + 0.6 * (rect2.top - rect1.top) + rect1.height / 2 - svgRect.top - yOffset;
+            const textOffset = weightValue < 0 ? -10 : 0;
+            
+            weightText.setAttribute('x', midpointx + textOffset);
+            weightText.setAttribute('y', midpointy);
+            weightText.setAttribute('fill', color);
+            weightText.setAttribute('font-size', '20px');
+            weightText.setAttribute('font-weight', 'bold');
+            weightText.setAttribute('id', `phase1-text-${index1}-${index2}`);
+            weightText.textContent = W2_before[index2][index1].toFixed(2) + '->' + W2[index2][index1].toFixed(2);
+            svg.appendChild(weightText);
+        });
+    });
+    
+    // 显示目标值
+    const currentTargetValue = document.getElementById('targetValues').value;
+    displayTargetValue(currentTargetValue);
+    
+    // 第一阶段权重文本动画
+    setTimeout(() => {
+        const weightTexts = document.querySelectorAll('[id^="phase1-text-"]');
+        weightTexts.forEach(text => {
+            text.setAttribute('font-size', '12px');
+            text.setAttribute('font-weight', 'normal');
+            text.textContent = extractAfterArrowRegex(text.textContent);
+        });
+    }, 15000);
+}
+
+function executePhase2() {
+    // 清除所有现有线条和文本
+    svg.innerHTML = '';
+    
+    // 重新绘制所有节点
+    const svgRect = svg.getBoundingClientRect();
+    const layers = document.querySelectorAll('.layer');
+    let yOffset = 10;
+    
+    // 重新绘制W2连接(普通样式)
+    const i = 1; // W2层索引
+    const currentLayer = layers[i].querySelectorAll('.node');
+    const nextLayer = layers[i + 1].querySelectorAll('.node');
+    const maxminvalue = findMinMaxWeights(W1, W2);
+    
+    currentLayer.forEach((node1, index1) => {
+        const rect1 = node1.getBoundingClientRect();
+        nextLayer.forEach((node2, index2) => {
+            // 画线
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const weightValue = W2[index2][index1];
+            const color = getWeightColor2(weightValue, maxminvalue);
+            
+            line.setAttribute('x1', rect1.left + rect1.width / 2 - svgRect.left);
+            line.setAttribute('y1', rect1.top + rect1.height / 2 - svgRect.top);
+            line.setAttribute('x2', rect2.left + rect2.width / 2 - svgRect.left);
+            line.setAttribute('y2', rect2.top + rect2.height / 2 - svgRect.top);
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', 2);
+            svg.appendChild(line);
+            
+            // 添加W2权重文本
+            const weightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            const midpointx = rect1.left + 0.6 * (rect2.left - rect1.left) + rect1.width / 2 - svgRect.left;
+            const midpointy = rect1.top + 0.6 * (rect2.top - rect1.top) + rect1.height / 2 - svgRect.top - yOffset;
+            const textOffset = weightValue < 0 ? -10 : 0;
+            
+            weightText.setAttribute('x', midpointx + textOffset);
+            weightText.setAttribute('y', midpointy);
+            weightText.setAttribute('fill', color);
+            weightText.setAttribute('font-size', '12px');
+            weightText.textContent = weightValue.toFixed(2);
+            svg.appendChild(weightText);
+        });
+    });
+    
+    // 画W1连接并添加权重文本(突出显示)
+    const j = 0; // W1层索引
+    const firstLayer = layers[j].querySelectorAll('.node');
+    const secondLayer = layers[j + 1].querySelectorAll('.node');
+    
+    firstLayer.forEach((node1, index1) => {
+        const rect1 = node1.getBoundingClientRect();
+        secondLayer.forEach((node2, index2) => {
+            // 画线
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const weightValue = W1[index2][index1];
+            const color = getWeightColor2(weightValue, maxminvalue);
+            
+            line.setAttribute('x1', rect1.left + rect1.width / 2 - svgRect.left);
+            line.setAttribute('y1', rect1.top + rect1.height / 2 - svgRect.top);
+            line.setAttribute('x2', rect2.left + rect2.width / 2 - svgRect.left);
+            line.setAttribute('y2', rect2.top + rect2.height / 2 - svgRect.top);
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', 4);
+            svg.appendChild(line);
+            
+            // 添加W1权重文本
+            const weightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            const midpointx = rect1.left + 0.6 * (rect2.left - rect1.left) + rect1.width / 2 - svgRect.left;
+            const midpointy = rect1.top + 0.6 * (rect2.top - rect1.top) + rect1.height / 2 - svgRect.top - yOffset;
+            const textOffset = weightValue < 0 ? -10 : 0;
+            
+            weightText.setAttribute('x', midpointx + textOffset);
+            weightText.setAttribute('y', midpointy);
+            weightText.setAttribute('fill', color);
+            weightText.setAttribute('font-size', '20px');
+            weightText.setAttribute('font-weight', 'bold');
+            weightText.setAttribute('id', `phase2-text-${index1}-${index2}`);
+            weightText.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
+            svg.appendChild(weightText);
+        });
+    });
+    
+    // 更新目标值显示
+    const currentTargetValue = document.getElementById('targetValues').value;
+    displayTargetValue(currentTargetValue);
+    
+    // 第二阶段权重文本动画
+    setTimeout(() => {
+        const weightTexts = document.querySelectorAll('[id^="phase2-text-"]');
+        weightTexts.forEach(text => {
+            text.setAttribute('font-size', '12px');
+            text.setAttribute('font-weight', 'normal');
+            text.textContent = extractAfterArrowRegex(text.textContent);
+        });
+        
+        // 完成后移除阶段指示器并重新启用按钮
+        setTimeout(() => {
+            const indicator = document.getElementById('phase-indicator');
+            if (indicator) indicator.remove();
+            
+            document.getElementById('forward').disabled = false;
+            document.getElementById('goodInit').disabled = false;
+            document.getElementById('badInit').disabled = false;
+        }, 5000);
+        
+    }, 15000);
+}
 
 function updateWeightsTable() {
     const weightsContainer = document.getElementById('weightsTable');

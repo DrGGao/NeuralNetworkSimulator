@@ -38,6 +38,10 @@ export const translations = {
     hiddenLayer: 'Hidden Layer',
     outputLayer: 'Output Layer',
     targetOutputValue: 'Target Output Value',
+    
+    // Backpropagation phases
+    backpropagationPhase1: 'Phase 1: Output Layer to Hidden Layer Backpropagation',
+    backpropagationPhase2: 'Phase 2: Hidden Layer to Input Layer Backpropagation',
   },
   zh: {
     // App
@@ -72,6 +76,10 @@ export const translations = {
     hiddenLayer: '隐藏层',
     outputLayer: '输出层',
     targetOutputValue: '目标输出值',
+    
+    // Backpropagation phases
+    backpropagationPhase1: '第一阶段：输出层到隐藏层的反向传播',
+    backpropagationPhase2: '第二阶段：隐藏层到输入层的反向传播',
   }
 };
 
