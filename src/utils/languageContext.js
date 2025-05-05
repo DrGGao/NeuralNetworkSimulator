@@ -41,7 +41,7 @@ export const translations = {
   },
   zh: {
     // App
-    appTitle: '神经网络可视化',
+    appTitle: '神经网络 工作原理',
     
     // Modes
     trainingMode: '训练模式',
