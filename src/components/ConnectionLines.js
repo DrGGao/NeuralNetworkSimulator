@@ -22,17 +22,17 @@ const ConnectionLines = ({
     const svg = svgRef.current;
     svg.innerHTML = '';
     
-    // Add smooth transition style
+    // Add smooth transition style - 加快过渡效果50%（相对于原始时间）
     const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
     style.textContent = `
       line {
-        transition: stroke-width 0.8s ease-in-out, stroke 0.8s ease-in-out;
+        transition: stroke-width 0.4s ease-in-out, stroke 0.4s ease-in-out;
       }
       text {
-        transition: font-size 0.5s ease-in-out, fill 0.5s ease-in-out;
+        transition: font-size 0.25s ease-in-out, fill 0.25s ease-in-out;
       }
       rect {
-        transition: width 0.5s ease, x 0.5s ease, opacity 0.5s ease;
+        transition: width 0.25s ease, x 0.25s ease, opacity 0.25s ease;
       }
     `;
     svg.appendChild(style);
@@ -65,17 +65,15 @@ const ConnectionLines = ({
           const toPos = getNodePosition(layerIndex + 1, j);
           if (!toPos) continue;
           
-          // 检查连接是否可见
-          let isConnectionVisible = true;
+          // 连接始终可见，但可能有不同的样式
+          let isHighlighted = false;
           if (visibleConnections) {
-            if (layerIndex === 0 && visibleConnections.inputToHidden) {
-              isConnectionVisible = visibleConnections.inputToHidden[j][i];
-            } else if (layerIndex === 1 && visibleConnections.hiddenToOutput) {
-              isConnectionVisible = visibleConnections.hiddenToOutput[j][i];
+            if (layerIndex === 0 && visibleConnections.inputToHidden && visibleConnections.inputToHidden[j][i]) {
+              isHighlighted = true;
+            } else if (layerIndex === 1 && visibleConnections.hiddenToOutput && visibleConnections.hiddenToOutput[j][i]) {
+              isHighlighted = true;
             }
           }
-          
-          if (!isConnectionVisible) continue;
           
           const weight = weights[j][i];
           const color = getWeightColor(weight, weightMinMax);
@@ -107,9 +105,21 @@ const ConnectionLines = ({
               line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
               line.setAttribute('opacity', '1');
             }
+          } else if (animationPhase && animationPhase.startsWith('forward-')) {
+            // 前向传播阶段
+            if (isHighlighted) {
+              // 高亮显示当前活跃的连接
+              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2);
+              line.setAttribute('opacity', '1');
+            } else {
+              // 其他连接显示为细线
+              line.setAttribute('stroke-width', Math.abs(weight) * 1 + 1);
+              line.setAttribute('opacity', '0.3');
+            }
           } else {
             // 其他情况使用默认线宽
             line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
+            line.setAttribute('opacity', '1');
           }
           
           svg.appendChild(line);
@@ -127,6 +137,16 @@ const ConnectionLines = ({
             bg.setAttribute('height', 18);   // Use fixed height
             bg.setAttribute('fill', 'rgba(255, 255, 255, 0.7)');
             bg.setAttribute('rx', '3');
+            
+            // 设置权重文本背景的透明度，与线条保持一致
+            if (animationPhase && animationPhase.startsWith('forward-') && !isHighlighted) {
+              bg.setAttribute('opacity', '0.3');
+            } else if (animationPhase === 'backward-phase1' && layerIndex === 0) {
+              bg.setAttribute('opacity', '0.3');
+            } else {
+              bg.setAttribute('opacity', '1');
+            }
+            
             svg.appendChild(bg);  // Add background to SVG first
             
             // Then add text
@@ -137,6 +157,16 @@ const ConnectionLines = ({
             text.setAttribute('font-size', '14px');
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('class', `weight-text-${layerIndex}-${i}-${j}`);
+            
+            // 设置权重文本的透明度，与线条保持一致
+            if (animationPhase && animationPhase.startsWith('forward-') && !isHighlighted) {
+              text.setAttribute('opacity', '0.3');
+            } else if (animationPhase === 'backward-phase1' && layerIndex === 0) {
+              text.setAttribute('opacity', '0.3');
+            } else {
+              text.setAttribute('opacity', '1');
+            }
+            
             text.textContent = weight.toFixed(2);
             
             // If in animation phase, add effects

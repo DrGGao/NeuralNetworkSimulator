@@ -40,8 +40,8 @@ export const translations = {
     targetOutputValue: 'Target Output Value',
     
     // Backpropagation phases
-    backpropagationPhase1: 'Phase 1: Output Layer to Hidden Layer Backpropagation',
-    backpropagationPhase2: 'Phase 2: Hidden Layer to Input Layer Backpropagation',
+    backpropagationPhase1: 'Step 1: Output Layer to Hidden Layer Backpropagation',
+    backpropagationPhase2: 'Step 2: Hidden Layer to Input Layer Backpropagation',
   },
   zh: {
     // App
