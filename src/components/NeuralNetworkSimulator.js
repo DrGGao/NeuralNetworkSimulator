@@ -565,39 +565,99 @@ const NeuralNetworkSimulator = () => {
           <TargetValueDisplay targetValue={targetValue} mode={mode} />
         </Box>
         
-        {/* 添加前向传播和反向传播按钮到神经网络图下方 */}
+        {/* 按钮部分从这里开始 - 加强样式并确保位于图表正下方 */}
         {mode === "train" && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
-            <StyledButton 
-              variant="contained" 
-              color="primary" 
-              onClick={handleForwardPropagation}
-              disabled={forwardDisabled}
-              sx={{ fontSize: '16px', px: 4 }}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 4,
+              mb: 3,
+              position: 'relative',
+              zIndex: 2,
+              width: '100%',
+            }}
+          >
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                py: 2, 
+                px: 4, 
+                borderRadius: '10px',
+                background: 'rgba(255, 255, 255, 0.9)',
+                display: 'inline-flex',
+                gap: 3
+              }}
             >
-              {t('forwardPropagation')}
-            </StyledButton>
-            <StyledButton 
-              variant="contained" 
-              color="secondary" 
-              onClick={handleBackwardPropagation}
-              disabled={backwardDisabled}
-              sx={{ fontSize: '16px', px: 4 }}
-            >
-              {t('backwardPropagation')}
-            </StyledButton>
+              <StyledButton 
+                variant="contained" 
+                color="primary" 
+                onClick={handleForwardPropagation}
+                disabled={forwardDisabled}
+                size="large"
+                sx={{ 
+                  fontSize: '16px', 
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 'bold'
+                }}
+              >
+                {t('forwardPropagation')}
+              </StyledButton>
+              <StyledButton 
+                variant="contained" 
+                color="secondary" 
+                onClick={handleBackwardPropagation}
+                disabled={backwardDisabled}
+                size="large"
+                sx={{ 
+                  fontSize: '16px', 
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 'bold'
+                }}
+              >
+                {t('backwardPropagation')}
+              </StyledButton>
+            </Paper>
           </Box>
         )}
         {mode === "apply" && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
-            <StyledButton 
-              variant="contained" 
-              color="primary" 
-              onClick={handleApplyNetwork}
-              sx={{ fontSize: '16px', px: 6 }}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 4,
+              mb: 3,
+              position: 'relative',
+              zIndex: 2,
+              width: '100%',
+            }}
+          >
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                py: 2, 
+                px: 4, 
+                borderRadius: '10px',
+                background: 'rgba(255, 255, 255, 0.9)'
+              }}
             >
-              {t('applyNetwork')}
-            </StyledButton>
+              <StyledButton 
+                variant="contained" 
+                color="primary" 
+                onClick={handleApplyNetwork}
+                size="large"
+                sx={{ 
+                  fontSize: '16px', 
+                  px: 6,
+                  py: 1.5,
+                  fontWeight: 'bold'
+                }}
+              >
+                {t('applyNetwork')}
+              </StyledButton>
+            </Paper>
           </Box>
         )}
       </NetworkContainer>
