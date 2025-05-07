@@ -511,97 +511,73 @@ const NeuralNetworkSimulator = () => {
         </ToggleButtonGroup>
       </Box>
 
-      <NetworkContainer>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-evenly',
-            width: '100%', 
-            position: 'relative',
-            height: '400px',
-            padding: '0 40px'
-          }}
-        >
-          <ConnectionLines 
-            W1={weights.W1} 
-            W2={weights.W2} 
-            oldW1={oldWeights?.W1}
-            oldW2={oldWeights?.W2}
-            inputSize={inputSize} 
-            hiddenSize={hiddenSize} 
-            outputSize={outputSize}
-            animationPhase={animationPhase}
-            visibleConnections={visibleConnections}
-          />
-          
-          <NetworkLayer 
-            layerIndex={0} 
-            layerName={t('inputLayer')} 
-            size={inputSize} 
-            values={inputs} 
-            visible={visibleLayers.input} 
-          />
-          
-          <NetworkLayer 
-            layerIndex={1} 
-            layerName={t('hiddenLayer')} 
-            size={hiddenSize} 
-            values={layerOutputs.A1} 
-            visible={visibleLayers.hidden}
-            visibleNodes={visibleNodes.hidden}
-            animationStep={animationStep}
-          />
-          
-          <NetworkLayer 
-            layerIndex={2} 
-            layerName={t('outputLayer')} 
-            size={outputSize} 
-            values={layerOutputs.A2} 
-            visible={visibleLayers.output}
-            visibleNodes={visibleNodes.output}
-            animationStep={animationStep}
-          />
-          
-          <TargetValueDisplay targetValue={targetValue} mode={mode} />
-        </Box>
-        
-        {/* 按钮部分从这里开始 - 加强样式并确保位于图表正下方 */}
-        {mode === "train" && (
+      {/* 神经网络图和按钮组合在一起 */}
+      <Box sx={{ mb: 4 }}>
+        <NetworkContainer>
           <Box 
             sx={{ 
               display: 'flex', 
-              justifyContent: 'center', 
-              mt: 4,
-              mb: 3,
+              justifyContent: 'space-evenly',
+              width: '100%', 
               position: 'relative',
-              zIndex: 2,
-              width: '100%',
+              height: '400px',
+              padding: '0 40px'
             }}
           >
-            <Paper 
-              elevation={3} 
-              sx={{ 
-                py: 2, 
-                px: 4, 
-                borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.9)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                width: '280px'
-              }}
-            >
+            <ConnectionLines 
+              W1={weights.W1} 
+              W2={weights.W2} 
+              oldW1={oldWeights?.W1}
+              oldW2={oldWeights?.W2}
+              inputSize={inputSize} 
+              hiddenSize={hiddenSize} 
+              outputSize={outputSize}
+              animationPhase={animationPhase}
+              visibleConnections={visibleConnections}
+            />
+            
+            <NetworkLayer 
+              layerIndex={0} 
+              layerName={t('inputLayer')} 
+              size={inputSize} 
+              values={inputs} 
+              visible={visibleLayers.input} 
+            />
+            
+            <NetworkLayer 
+              layerIndex={1} 
+              layerName={t('hiddenLayer')} 
+              size={hiddenSize} 
+              values={layerOutputs.A1} 
+              visible={visibleLayers.hidden}
+              visibleNodes={visibleNodes.hidden}
+              animationStep={animationStep}
+            />
+            
+            <NetworkLayer 
+              layerIndex={2} 
+              layerName={t('outputLayer')} 
+              size={outputSize} 
+              values={layerOutputs.A2} 
+              visible={visibleLayers.output}
+              visibleNodes={visibleNodes.output}
+              animationStep={animationStep}
+            />
+            
+            <TargetValueDisplay targetValue={targetValue} mode={mode} />
+          </Box>
+        </NetworkContainer>
+        
+        {/* 按钮直接放在神经网络图下方 */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          {mode === "train" ? (
+            <>
               <StyledButton 
                 variant="contained" 
                 color="primary" 
                 onClick={handleForwardPropagation}
                 disabled={forwardDisabled}
-                size="large"
-                sx={{ 
-                  fontSize: '16px', 
-                  py: 1.5,
-                  fontWeight: 'bold'
-                }}
+                sx={{ fontSize: '16px', px: 4 }}
               >
                 {t('forwardPropagation')}
               </StyledButton>
@@ -610,57 +586,23 @@ const NeuralNetworkSimulator = () => {
                 color="secondary" 
                 onClick={handleBackwardPropagation}
                 disabled={backwardDisabled}
-                size="large"
-                sx={{ 
-                  fontSize: '16px', 
-                  py: 1.5,
-                  fontWeight: 'bold'
-                }}
+                sx={{ fontSize: '16px', px: 4 }}
               >
                 {t('backwardPropagation')}
               </StyledButton>
-            </Paper>
-          </Box>
-        )}
-        {mode === "apply" && (
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              mt: 4,
-              mb: 3,
-              position: 'relative',
-              zIndex: 2,
-              width: '100%',
-            }}
-          >
-            <Paper 
-              elevation={3} 
-              sx={{ 
-                py: 2, 
-                px: 4, 
-                borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.9)'
-              }}
+            </>
+          ) : (
+            <StyledButton 
+              variant="contained" 
+              color="primary" 
+              onClick={handleApplyNetwork}
+              sx={{ fontSize: '16px', px: 6 }}
             >
-              <StyledButton 
-                variant="contained" 
-                color="primary" 
-                onClick={handleApplyNetwork}
-                size="large"
-                sx={{ 
-                  fontSize: '16px', 
-                  px: 6,
-                  py: 1.5,
-                  fontWeight: 'bold'
-                }}
-              >
-                {t('applyNetwork')}
-              </StyledButton>
-            </Paper>
-          </Box>
-        )}
-      </NetworkContainer>
+              {t('applyNetwork')}
+            </StyledButton>
+          )}
+        </Box>
+      </Box>
       
       <ControlPanel 
         input1={inputs[0]}
@@ -680,7 +622,7 @@ const NeuralNetworkSimulator = () => {
         backwardDisabled={backwardDisabled}
         mode={mode}
         outputValue={layerOutputs.A2[0] || 0}
-        hideButtons={true} // 添加一个属性，告诉ControlPanel隐藏按钮
+        hideButtons={true}
       />
     </Box>
   );
