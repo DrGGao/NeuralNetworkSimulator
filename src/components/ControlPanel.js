@@ -51,15 +51,9 @@ const ControlPanel = ({
   onInput2Change,
   onLearningRateChange,
   onTargetValueChange,
-  onForwardPropagation,
-  onBackwardPropagation,
-  onApplyNetwork,
   onGoodInitialization,
   onBadInitialization,
-  forwardDisabled,
-  backwardDisabled,
-  mode,
-  hideButtons = false
+  mode
 }) => {
   const { t } = useLanguage();
   
@@ -188,44 +182,6 @@ const ControlPanel = ({
       </Grid>
       
       <Divider sx={{ my: 2 }} />
-      
-      {/* Action buttons section - different for each mode */}
-      {!hideButtons && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          {mode === "train" ? (
-            <>
-              <StyledButton 
-                variant="contained" 
-                color="primary" 
-                onClick={onForwardPropagation}
-                disabled={forwardDisabled}
-                sx={{ fontSize: '16px' }}
-              >
-                {t('forwardPropagation')}
-              </StyledButton>
-              <StyledButton 
-                variant="contained" 
-                color="secondary" 
-                onClick={onBackwardPropagation}
-                disabled={backwardDisabled}
-                sx={{ fontSize: '16px' }}
-              >
-                {t('backwardPropagation')}
-              </StyledButton>
-            </>
-          ) : (
-            <StyledButton 
-              variant="contained" 
-              color="primary" 
-              onClick={onApplyNetwork}
-              fullWidth
-              sx={{ fontSize: '16px', py: 1.5 }}
-            >
-              {t('applyNetwork')}
-            </StyledButton>
-          )}
-        </Box>
-      )}
     </ControlPaper>
   );
 };
