@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material';
+import { Box, Paper, ToggleButtonGroup, ToggleButton, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import NetworkLayer from './NetworkLayer';
 import ConnectionLines from './ConnectionLines';
@@ -26,6 +26,19 @@ const NetworkContainer = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
   overflow: 'hidden',
   width: '100%',
+}));
+
+// 添加一个样式化的按钮组件
+const StyledButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(1),
+  borderRadius: '8px',
+  padding: '8px 16px',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  transition: 'transform 0.2s, box-shadow 0.2s',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+  },
 }));
 
 const NeuralNetworkSimulator = () => {
@@ -551,6 +564,42 @@ const NeuralNetworkSimulator = () => {
           
           <TargetValueDisplay targetValue={targetValue} mode={mode} />
         </Box>
+        
+        {/* 添加前向传播和反向传播按钮到神经网络图下方 */}
+        {mode === "train" && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+            <StyledButton 
+              variant="contained" 
+              color="primary" 
+              onClick={handleForwardPropagation}
+              disabled={forwardDisabled}
+              sx={{ fontSize: '16px', px: 4 }}
+            >
+              {t('forwardPropagation')}
+            </StyledButton>
+            <StyledButton 
+              variant="contained" 
+              color="secondary" 
+              onClick={handleBackwardPropagation}
+              disabled={backwardDisabled}
+              sx={{ fontSize: '16px', px: 4 }}
+            >
+              {t('backwardPropagation')}
+            </StyledButton>
+          </Box>
+        )}
+        {mode === "apply" && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+            <StyledButton 
+              variant="contained" 
+              color="primary" 
+              onClick={handleApplyNetwork}
+              sx={{ fontSize: '16px', px: 6 }}
+            >
+              {t('applyNetwork')}
+            </StyledButton>
+          </Box>
+        )}
       </NetworkContainer>
       
       <ControlPanel 
@@ -571,6 +620,7 @@ const NeuralNetworkSimulator = () => {
         backwardDisabled={backwardDisabled}
         mode={mode}
         outputValue={layerOutputs.A2[0] || 0}
+        hideButtons={true} // 添加一个属性，告诉ControlPanel隐藏按钮
       />
     </Box>
   );

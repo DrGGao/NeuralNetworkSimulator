@@ -58,7 +58,8 @@ const ControlPanel = ({
   onBadInitialization,
   forwardDisabled,
   backwardDisabled,
-  mode
+  mode,
+  hideButtons = false
 }) => {
   const { t } = useLanguage();
   
@@ -189,40 +190,42 @@ const ControlPanel = ({
       <Divider sx={{ my: 2 }} />
       
       {/* Action buttons section - different for each mode */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        {mode === "train" ? (
-          <>
+      {!hideButtons && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          {mode === "train" ? (
+            <>
+              <StyledButton 
+                variant="contained" 
+                color="primary" 
+                onClick={onForwardPropagation}
+                disabled={forwardDisabled}
+                sx={{ fontSize: '16px' }}
+              >
+                {t('forwardPropagation')}
+              </StyledButton>
+              <StyledButton 
+                variant="contained" 
+                color="secondary" 
+                onClick={onBackwardPropagation}
+                disabled={backwardDisabled}
+                sx={{ fontSize: '16px' }}
+              >
+                {t('backwardPropagation')}
+              </StyledButton>
+            </>
+          ) : (
             <StyledButton 
               variant="contained" 
               color="primary" 
-              onClick={onForwardPropagation}
-              disabled={forwardDisabled}
-              sx={{ fontSize: '16px' }}
+              onClick={onApplyNetwork}
+              fullWidth
+              sx={{ fontSize: '16px', py: 1.5 }}
             >
-              {t('forwardPropagation')}
+              {t('applyNetwork')}
             </StyledButton>
-            <StyledButton 
-              variant="contained" 
-              color="secondary" 
-              onClick={onBackwardPropagation}
-              disabled={backwardDisabled}
-              sx={{ fontSize: '16px' }}
-            >
-              {t('backwardPropagation')}
-            </StyledButton>
-          </>
-        ) : (
-          <StyledButton 
-            variant="contained" 
-            color="primary" 
-            onClick={onApplyNetwork}
-            fullWidth
-            sx={{ fontSize: '16px', py: 1.5 }}
-          >
-            {t('applyNetwork')}
-          </StyledButton>
-        )}
-      </Box>
+          )}
+        </Box>
+      )}
     </ControlPaper>
   );
 };
