@@ -585,8 +585,10 @@ const NeuralNetworkSimulator = () => {
                 px: 4, 
                 borderRadius: '10px',
                 background: 'rgba(255, 255, 255, 0.9)',
-                display: 'inline-flex',
-                gap: 3
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '280px'
               }}
             >
               <StyledButton 
@@ -597,7 +599,6 @@ const NeuralNetworkSimulator = () => {
                 size="large"
                 sx={{ 
                   fontSize: '16px', 
-                  px: 4,
                   py: 1.5,
                   fontWeight: 'bold'
                 }}
@@ -612,7 +613,6 @@ const NeuralNetworkSimulator = () => {
                 size="large"
                 sx={{ 
                   fontSize: '16px', 
-                  px: 4,
                   py: 1.5,
                   fontWeight: 'bold'
                 }}
