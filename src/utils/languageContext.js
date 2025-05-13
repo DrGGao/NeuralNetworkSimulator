@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 // Create language context
 export const LanguageContext = createContext();
@@ -45,59 +45,52 @@ export const translations = {
   },
   zh: {
     // App
-    appTitle: '神经网络 工作原理',
+    appTitle: '',
     
     // Modes
-    trainingMode: '训练模式',
-    applyMode: '应用模式',
+    trainingMode: '',
+    applyMode: '',
     
     // Controls
-    inputs: '输入',
-    input1: '输入值 1',
-    input2: '输入值 2',
-    learningRate: '学习率',
-    targetValue: '目标值',
-    outputValue: '输出值',
-    calculatedFromNetwork: '网络计算得出',
+    inputs: '',
+    input1: '',
+    input2: '',
+    learningRate: '',
+    targetValue: '',
+    outputValue: '',
+    calculatedFromNetwork: '',
     
     // Buttons
-    forwardPropagation: '前向传播',
-    backwardPropagation: '反向传播',
-    applyNetwork: '应用网络',
+    forwardPropagation: '',
+    backwardPropagation: '',
+    applyNetwork: '',
     
     // Weights initialization
-    weightsInitialization: '权重初始化',
-    goodInitialization: '良好初始化',
-    badInitialization: '不良初始化',
-    reset: '重置',
+    weightsInitialization: '',
+    goodInitialization: '',
+    badInitialization: '',
+    reset: '',
     
     // Layers
-    inputLayer: '输入层',
-    hiddenLayer: '隐藏层',
-    outputLayer: '输出层',
-    targetOutputValue: '目标输出值',
+    inputLayer: '',
+    hiddenLayer: '',
+    outputLayer: '',
+    targetOutputValue: '',
     
     // Backpropagation phases
-    backpropagationPhase1: '第一阶段：输出层到隐藏层的反向传播',
-    backpropagationPhase2: '第二阶段：隐藏层到输入层的反向传播',
+    backpropagationPhase1: '',
+    backpropagationPhase2: '',
   }
 };
 
-// Language provider component
+// Language provider component - English only
 export const LanguageProvider = ({ children }) => {
-  // Get initial language from local storage, default to English if not found
-  const [language, setLanguage] = useState(() => {
-    const savedLanguage = localStorage.getItem('language');
-    return savedLanguage || 'en';
-  });
+  // Fixed to English
+  const [language] = useState('en');
   
-  // Toggle language function
+  // Disabled toggle function (no-op)
   const toggleLanguage = () => {
-    setLanguage(prevLang => {
-      const newLang = prevLang === 'en' ? 'zh' : 'en';
-      localStorage.setItem('language', newLang);
-      return newLang;
-    });
+    // Disabled - does nothing
   };
   
   // Translation lookup function

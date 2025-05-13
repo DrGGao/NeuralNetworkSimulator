@@ -28,7 +28,7 @@ const NetworkContainer = styled(Paper)(({ theme }) => ({
   width: '100%',
 }));
 
-// 创建一个样式化的按钮组件
+// Create a styled button component
 const StyledButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(0, 1),
   padding: theme.spacing(1, 3),
@@ -249,7 +249,7 @@ const NeuralNetworkSimulator = () => {
       W2: weights.W2.map(row => [...row])
     });
     
-    // 计算反向传播
+    // Calculate backpropagation
     const { newW1, newW2 } = backwardPropagation(
       inputs,
       layerOutputs.A1,
@@ -260,12 +260,12 @@ const NeuralNetworkSimulator = () => {
       learningRate
     );
     
-    // 实现分阶段反向传播动画
+    // Implement phased backpropagation animation
     
-    // 第一阶段：输出层到隐藏层（W2权重更新）
+    // Phase 1: Output layer to hidden layer (W2 weights update)
     setAnimationPhase('backward-phase1');
     
-    // 创建视觉提示
+    // Create visual cue
     const statusMessage = document.createElement('div');
     statusMessage.style.position = 'fixed';
     statusMessage.style.top = '10px';
@@ -280,56 +280,56 @@ const NeuralNetworkSimulator = () => {
     statusMessage.style.zIndex = '1000';
     statusMessage.style.transition = 'opacity 0.5s';
     statusMessage.id = 'phase-status';
-    statusMessage.textContent = t('backpropagationPhase1'); // "第一阶段：输出层到隐藏层的反向传播"
+    statusMessage.textContent = t('backpropagationPhase1'); // "Step 1: Output Layer to Hidden Layer Backpropagation"
     document.body.appendChild(statusMessage);
     
-    // 加快动画速度50%：将2秒延迟改为1秒
+    // Speed up animation by 50%: change 2 second delay to 1 second
     setTimeout(() => {
-      // 只更新W2权重
+      // Only update W2 weights
       setWeights({
-        W1: weights.W1, // 保持W1不变
-        W2: newW2       // 只更新W2
+        W1: weights.W1, // Keep W1 unchanged
+        W2: newW2       // Only update W2
       });
       
-      // 加快动画速度50%：将5秒延迟改为2.5秒
+      // Speed up animation by 50%: change 5 second delay to 2.5 seconds
       setTimeout(() => {
-        // 更新视觉提示
+        // Update visual cue
         const phaseStatus = document.getElementById('phase-status');
         if (phaseStatus) {
-          phaseStatus.textContent = t('backpropagationPhase2'); // "第二阶段：隐藏层到输入层的反向传播"
+          phaseStatus.textContent = t('backpropagationPhase2'); // "Step 2: Hidden Layer to Input Layer Backpropagation"
         }
         
-        // 设置第二阶段动画状态
+        // Set second phase animation state
         setAnimationPhase('backward-phase2');
         
-        // 保存W2的新值和W1的原始值
+        // Save new W2 value and original W1 value
         setOldWeights({
           W1: weights.W1.map(row => [...row]),
           W2: newW2.map(row => [...row])
         });
         
-        // 加快动画速度50%：将2秒延迟改为1秒
+        // Speed up animation by 50%: change 2 second delay to 1 second
         setTimeout(() => {
-          // 完成所有权重更新
+          // Complete all weight updates
           setWeights({
             W1: newW1,
             W2: newW2
           });
           
-          // 加快动画速度50%：将5秒延迟改为2.5秒
+          // Speed up animation by 50%: change 5 second delay to 2.5 seconds
           setTimeout(() => {
-            // 移除视觉提示
+            // Remove visual cue
             const phaseStatus = document.getElementById('phase-status');
             if (phaseStatus) {
               phaseStatus.style.opacity = '0';
               setTimeout(() => phaseStatus.remove(), 500);
             }
             
-            // 结束动画阶段
+            // End animation phase
             setAnimationPhase(null);
             setOldWeights(null);
             
-            // 重新启用前向传播按钮，禁用反向传播按钮
+            // Re-enable forward propagation button, disable backward propagation button
             setForwardDisabled(false);
             setBackwardDisabled(true);
           }, 2500);
@@ -465,19 +465,19 @@ const NeuralNetworkSimulator = () => {
   
   // Reset state
   const resetState = () => {
-    // 确保无论在什么模式下，所有层都始终可见
+    // Ensure all layers are always visible regardless of mode
     setVisibleLayers({ input: true, hidden: true, output: true });
     
-    // 清空层输出
+    // Clear layer outputs
     setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
     
-    // 确保所有节点都可见
+    // Ensure all nodes are visible
     setVisibleNodes({
       hidden: [true, true, true],
       output: [true]
     });
     
-    // 重置连接的可见性（可以选择是否也显示它们）
+    // Reset connection visibility (can choose whether to show them too)
     setVisibleConnections({
       inputToHidden: [[false, false], [false, false], [false, false]],
       hiddenToOutput: [[false, false, false]]
@@ -574,10 +574,10 @@ const NeuralNetworkSimulator = () => {
             <TargetValueDisplay targetValue={targetValue} mode={mode} />
           </Box>
           
-          {/* 添加分隔线 */}
+          {/* Add divider */}
           <Divider sx={{ my: 1.5, width: '100%' }} />
           
-          {/* 添加按钮到神经网络图内 */}
+          {/* Add buttons to neural network container */}
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 1.5 }}>
             {mode === "train" ? (
               <>

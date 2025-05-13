@@ -52,7 +52,7 @@ const NetworkLayer = ({
       </LayerTitle>
       <NodesContainer>
         {Array.from({ length: size }).map((_, i) => {
-          // 如果传入了visibleNodes，则使用它来控制每个节点的可见性
+          // If visibleNodes is provided, use it to control the visibility of each node
           const nodeVisible = visibleNodes ? visibleNodes[i] : visible;
           
           return (

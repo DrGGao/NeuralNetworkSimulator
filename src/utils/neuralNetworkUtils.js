@@ -31,7 +31,7 @@ export const ReLUDerivative = (x) => {
 export const forwardPropagation = (inputs, weights) => {
   const { W1, W2 } = weights;
   
-  // 确保输入不含NaN值
+  // Ensure inputs don't contain NaN values
   const safeInputs = inputs.map(input => isNaN(input) ? 0 : input);
   
   console.log('Forward propagation inputs:', safeInputs);
@@ -62,7 +62,7 @@ export const forwardPropagation = (inputs, weights) => {
       console.log(`W2[${idx}][${i}] * A1[${i}] = ${weight} * ${a1} = ${product}`);
       if (isNaN(product)) {
         console.error('NaN detected in product calculation!');
-        return sum; // 忽略NaN值
+        return sum; // Ignore NaN values
       }
       return isNaN(sum + product) ? sum : sum + product;
     }, 0);
