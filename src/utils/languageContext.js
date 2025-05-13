@@ -25,7 +25,7 @@ export const translations = {
     // Buttons
     forwardPropagation: 'Forward Propagation',
     backwardPropagation: 'Backward Propagation',
-    applyNetwork: 'Apply Network',
+    applyNetwork: 'Apply',
     
     // Weights initialization
     weightsInitialization: 'Weights Initialization',
