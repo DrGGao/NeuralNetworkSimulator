@@ -327,7 +327,7 @@ function resizeOutputLayerWeights() {
             text.textContent = W2_before[index2][index1].toFixed(2) + '->' + W2[index2][index1].toFixed(2);
         }
     });
-    
+
     // 15秒后缩小文本大小
     setTimeout(() => {
         weightTextElements.forEach(text => {
@@ -344,23 +344,23 @@ function resizeInputLayerWeights() {
     weightTextElements.forEach(text => {
         text.style.fontSize = '20px';
         text.style.opacity = '1';
-        const className = text.getAttribute('class');
-        const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
+            const className = text.getAttribute('class');
+            const match = className.match(/weight-text#(\d+)#(\d+)#(\d+)/);
         
-        if (match) {
-            const i = parseInt(match[1], 10);
-            const index1 = parseInt(match[2], 10);
-            const index2 = parseInt(match[3], 10);
-            text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
+            if (match) {
+                const i = parseInt(match[1], 10);
+                const index1 = parseInt(match[2], 10);
+                const index2 = parseInt(match[3], 10);
+                text.textContent = W1_before[index2][index1].toFixed(2) + '->' + W1[index2][index1].toFixed(2);
         }
     });
     
     // 15秒后缩小文本大小
-    setTimeout(() => {
-        weightTextElements.forEach(text => {
-            text.style.fontSize = '12px';
-            text.textContent = extractAfterArrowRegex(text.textContent);
-        });
+                setTimeout(() => {
+                    weightTextElements.forEach(text => {
+                        text.style.fontSize = '12px';
+                        text.textContent = extractAfterArrowRegex(text.textContent);
+                    });
     }, 15000);
 }
 
@@ -445,22 +445,22 @@ function backwardPropagation() {
     const learningRate = parseFloat(document.getElementById('learningRate').value) || 0.01;
     const targetValuesInput = document.getElementById('targetValues').value.split(',').map(num => parseFloat(num));
     const targetOutputs = targetValuesInput.length === outputSize ? targetValuesInput : Array(outputSize).fill(0);
-    
+
     // 计算输出层误差
-    const outputErrors = targetOutputs.map((target, i) => target - A2[i]);
-    const outputDeltas = outputErrors.map((error, i) => error * ReLUDerivative(A2[i]));
+        const outputErrors = targetOutputs.map((target, i) => target - A2[i]);
+        const outputDeltas = outputErrors.map((error, i) => error * ReLUDerivative(A2[i]));
     
     // 计算隐藏层误差 (现在计算但在第二阶段才使用)
-    const hiddenErrors = W2[0].map((w, j) => w * outputDeltas[0]);
-    const hiddenDeltas = hiddenErrors.map((error, i) => error * ReLUDerivative(A1[i]));
+        const hiddenErrors = W2[0].map((w, j) => w * outputDeltas[0]);
+        const hiddenDeltas = hiddenErrors.map((error, i) => error * ReLUDerivative(A1[i]));
     
     // 只更新W2权重
     const newW2 = W2.map((weights, i) => weights.map((w, j) => w + learningRate * outputDeltas[i] * A1[j]));
     W2 = newW2;  // 应用W2更新
-    
+
     // 创建W1新权重但不立即应用
     const newW1 = W1.map((weights, i) => weights.map((w, j) => w + learningRate * hiddenDeltas[i] * inputs[j]));
-    
+
     // 清除所有现有线条和文本
     svg.innerHTML = '';
     
@@ -591,7 +591,7 @@ function executePhase1(newW1) {
     });
     
     // 显示目标值
-    const currentTargetValue = document.getElementById('targetValues').value;
+        const currentTargetValue = document.getElementById('targetValues').value;
     displayTargetValue(currentTargetValue);
     
     // 第一阶段权重文本动画
