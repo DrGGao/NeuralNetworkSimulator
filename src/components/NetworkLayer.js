@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import NeuronNode from './NeuronNode';
 
-const LayerContainer = styled(Box)(({ theme, visible }) => ({
+const LayerContainer = styled(Box)(({ theme, 'data-visible': visible }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -15,7 +15,7 @@ const LayerContainer = styled(Box)(({ theme, visible }) => ({
   transition: 'opacity 0.8s ease-in-out, transform 0.8s ease-in-out',
 }));
 
-const LayerTitle = styled(Typography)(({ theme, visible }) => ({
+const LayerTitle = styled(Typography)(({ theme, 'data-visible': visible }) => ({
   fontWeight: 'bold',
   marginBottom: theme.spacing(2),
   color: '#3f51b5',
@@ -43,16 +43,16 @@ const NetworkLayer = ({
   animationStep = 0
 }) => {
   return (
-    <LayerContainer visible={visible}>
+    <LayerContainer data-visible={visible}>
       <LayerTitle 
         variant="subtitle1"
-        visible={visible}
+        data-visible={visible}
       >
         {layerName}
       </LayerTitle>
       <NodesContainer>
         {Array.from({ length: size }).map((_, i) => {
-          // 如果传入了visibleNodes，则使用它来控制每个节点的可见性
+          // If visibleNodes is provided, use it to control the visibility of each node
           const nodeVisible = visibleNodes ? visibleNodes[i] : visible;
           
           return (
@@ -60,7 +60,7 @@ const NetworkLayer = ({
               key={i}
               id={`node-${layerIndex}-${i}`}
               value={nodeVisible ? (values[i] || '') : ''}
-              visible={nodeVisible}
+              data-visible={nodeVisible}
             />
           );
         })}

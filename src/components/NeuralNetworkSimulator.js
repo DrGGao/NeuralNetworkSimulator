@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material';
+import { Box, Paper, ToggleButtonGroup, ToggleButton, Typography, Button, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import NetworkLayer from './NetworkLayer';
 import ConnectionLines from './ConnectionLines';
@@ -26,6 +26,18 @@ const NetworkContainer = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
   overflow: 'hidden',
   width: '100%',
+}));
+
+// Create a styled button component
+const StyledButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(0, 1),
+  padding: theme.spacing(1, 3),
+  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-3px)',
+    boxShadow: '0 6px 14px rgba(0,0,0,0.15)',
+  },
 }));
 
 const NeuralNetworkSimulator = () => {
@@ -59,8 +71,8 @@ const NeuralNetworkSimulator = () => {
   });
   const [visibleLayers, setVisibleLayers] = useState({
     input: true,
-    hidden: false,
-    output: false
+    hidden: true,
+    output: true
   });
   const [animationPhase, setAnimationPhase] = useState(null);
   const [oldWeights, setOldWeights] = useState(null);
@@ -105,13 +117,6 @@ const NeuralNetworkSimulator = () => {
       
       // Reset network state when changing modes
       resetState();
-      
-      // In apply mode, show all layers by default
-      if (newMode === "apply") {
-        setVisibleLayers({ input: true, hidden: true, output: true });
-        // Don't calculate output values immediately, keep them at 0
-        setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
-      }
     }
   };
   
@@ -137,10 +142,13 @@ const NeuralNetworkSimulator = () => {
     
     // Reset animation state
     setAnimationStep(0);
+    
+    // 新的逻辑：设置所有神经元为可见，只是其值从空开始
     setVisibleNodes({
-      hidden: [false, false, false],
-      output: [false]
+      hidden: [true, true, true], // 所有隐藏层神经元都可见
+      output: [true]              // 输出层神经元也可见
     });
+    
     setVisibleConnections({
       inputToHidden: [[false, false], [false, false], [false, false]],
       hiddenToOutput: [[false, false, false]]
@@ -149,7 +157,7 @@ const NeuralNetworkSimulator = () => {
     // Set initial layer outputs to first step
     setLayerOutputs(stepOutputs[0]);
     
-    // Make sure input layer is visible and others are hidden initially
+    // Make sure all layers are visible
     setVisibleLayers({ input: true, hidden: true, output: true });
     
     // Delay between animation steps
@@ -164,12 +172,9 @@ const NeuralNetworkSimulator = () => {
         hiddenToOutput: [[false, false, false]]
       });
       
-      // Step 2: Show first hidden node
+      // Step 2: Show first hidden node value
       setTimeout(() => {
         setAnimationStep(1);
-        const newVisibleNodes = { ...visibleNodes };
-        newVisibleNodes.hidden[0] = true;
-        setVisibleNodes(newVisibleNodes);
         setLayerOutputs(stepOutputs[1]);
         
         // Step 3: Show connections from input to second hidden node
@@ -180,13 +185,9 @@ const NeuralNetworkSimulator = () => {
             hiddenToOutput: [[false, false, false]]
           });
           
-          // Step 4: Show second hidden node
+          // Step 4: Show second hidden node value
           setTimeout(() => {
             setAnimationStep(2);
-            const newVisibleNodes = { ...visibleNodes };
-            newVisibleNodes.hidden[0] = true;
-            newVisibleNodes.hidden[1] = true;
-            setVisibleNodes(newVisibleNodes);
             setLayerOutputs(stepOutputs[2]);
             
             // Step 5: Show connections from input to third hidden node
@@ -197,14 +198,9 @@ const NeuralNetworkSimulator = () => {
                 hiddenToOutput: [[false, false, false]]
               });
               
-              // Step 6: Show third hidden node
+              // Step 6: Show third hidden node value
               setTimeout(() => {
                 setAnimationStep(3);
-                const newVisibleNodes = { ...visibleNodes };
-                newVisibleNodes.hidden[0] = true;
-                newVisibleNodes.hidden[1] = true;
-                newVisibleNodes.hidden[2] = true;
-                setVisibleNodes(newVisibleNodes);
                 setLayerOutputs(stepOutputs[3]);
                 
                 // Step 7: Show connections from hidden to output
@@ -215,13 +211,9 @@ const NeuralNetworkSimulator = () => {
                     hiddenToOutput: [[true, true, true]]
                   });
                   
-                  // Step 8: Show output node
+                  // Step 8: Show output node value
                   setTimeout(() => {
                     setAnimationStep(4);
-                    const newVisibleNodes = { ...visibleNodes };
-                    newVisibleNodes.hidden = [true, true, true];
-                    newVisibleNodes.output = [true];
-                    setVisibleNodes(newVisibleNodes);
                     setLayerOutputs(stepOutputs[4]);
                     
                     // Final step: Complete animation
@@ -257,8 +249,6 @@ const NeuralNetworkSimulator = () => {
       W2: weights.W2.map(row => [...row])
     });
     
-    setAnimationPhase('backward');
-    
     // Calculate backpropagation
     const { newW1, newW2 } = backwardPropagation(
       inputs,
@@ -270,25 +260,82 @@ const NeuralNetworkSimulator = () => {
       learningRate
     );
     
-    // First show the transition text for 0.5 seconds
+    // Implement phased backpropagation animation
+    
+    // Phase 1: Output layer to hidden layer (W2 weights update)
+    setAnimationPhase('backward-phase1');
+    
+    // Create visual cue
+    const statusMessage = document.createElement('div');
+    statusMessage.style.position = 'fixed';
+    statusMessage.style.top = '10px';
+    statusMessage.style.left = '50%';
+    statusMessage.style.transform = 'translateX(-50%)';
+    statusMessage.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+    statusMessage.style.color = 'white';
+    statusMessage.style.padding = '10px 20px';
+    statusMessage.style.borderRadius = '5px';
+    statusMessage.style.fontWeight = 'bold';
+    statusMessage.style.fontSize = '18px';
+    statusMessage.style.zIndex = '1000';
+    statusMessage.style.transition = 'opacity 0.5s';
+    statusMessage.id = 'phase-status';
+    statusMessage.textContent = t('backpropagationPhase1'); // "Step 1: Output Layer to Hidden Layer Backpropagation"
+    document.body.appendChild(statusMessage);
+    
+    // Speed up animation by 50%: change 2 second delay to 1 second
     setTimeout(() => {
-      // After 0.5 seconds, directly update weights to new values
+      // Only update W2 weights
       setWeights({
-        W1: newW1,
-        W2: newW2
+        W1: weights.W1, // Keep W1 unchanged
+        W2: newW2       // Only update W2
       });
       
-      // End animation phase after transition is complete
+      // Speed up animation by 50%: change 5 second delay to 2.5 seconds
       setTimeout(() => {
-        setAnimationPhase(null);
-        setOldWeights(null);
+        // Update visual cue
+        const phaseStatus = document.getElementById('phase-status');
+        if (phaseStatus) {
+          phaseStatus.textContent = t('backpropagationPhase2'); // "Step 2: Hidden Layer to Input Layer Backpropagation"
+        }
         
-        // Keep all layers visible, but enable forward button for next round
-        // and disable backward button
-        setForwardDisabled(false);
-        setBackwardDisabled(true);
-      }, 1500);
-    }, 500); // Display transition text for 0.5 seconds
+        // Set second phase animation state
+        setAnimationPhase('backward-phase2');
+        
+        // Save new W2 value and original W1 value
+        setOldWeights({
+          W1: weights.W1.map(row => [...row]),
+          W2: newW2.map(row => [...row])
+        });
+        
+        // Speed up animation by 50%: change 2 second delay to 1 second
+        setTimeout(() => {
+          // Complete all weight updates
+          setWeights({
+            W1: newW1,
+            W2: newW2
+          });
+          
+          // Speed up animation by 50%: change 5 second delay to 2.5 seconds
+          setTimeout(() => {
+            // Remove visual cue
+            const phaseStatus = document.getElementById('phase-status');
+            if (phaseStatus) {
+              phaseStatus.style.opacity = '0';
+              setTimeout(() => phaseStatus.remove(), 500);
+            }
+            
+            // End animation phase
+            setAnimationPhase(null);
+            setOldWeights(null);
+            
+            // Re-enable forward propagation button, disable backward propagation button
+            setForwardDisabled(false);
+            setBackwardDisabled(true);
+          }, 2500);
+        }, 1000);
+      }, 2500);
+    }, 1000);
   };
   
   // Apply network function for apply mode
@@ -313,10 +360,13 @@ const NeuralNetworkSimulator = () => {
     
     // Reset animation state
     setAnimationStep(0);
+    
+    // 确保所有神经元始终可见
     setVisibleNodes({
-      hidden: [false, false, false],
-      output: [false]
+      hidden: [true, true, true],
+      output: [true]
     });
+    
     setVisibleConnections({
       inputToHidden: [[false, false], [false, false], [false, false]],
       hiddenToOutput: [[false, false, false]]
@@ -325,7 +375,7 @@ const NeuralNetworkSimulator = () => {
     // Set initial layer outputs to first step
     setLayerOutputs(stepOutputs[0]);
     
-    // Make sure input layer is visible and others are hidden initially
+    // 确保所有层始终可见
     setVisibleLayers({ input: true, hidden: true, output: true });
     
     // Delay between animation steps
@@ -340,12 +390,9 @@ const NeuralNetworkSimulator = () => {
         hiddenToOutput: [[false, false, false]]
       });
       
-      // Step 2: Show first hidden node
+      // Step 2: Show first hidden node value
       setTimeout(() => {
         setAnimationStep(1);
-        const newVisibleNodes = { ...visibleNodes };
-        newVisibleNodes.hidden[0] = true;
-        setVisibleNodes(newVisibleNodes);
         setLayerOutputs(stepOutputs[1]);
         
         // Step 3: Show connections from input to second hidden node
@@ -356,13 +403,9 @@ const NeuralNetworkSimulator = () => {
             hiddenToOutput: [[false, false, false]]
           });
           
-          // Step 4: Show second hidden node
+          // Step 4: Show second hidden node value
           setTimeout(() => {
             setAnimationStep(2);
-            const newVisibleNodes = { ...visibleNodes };
-            newVisibleNodes.hidden[0] = true;
-            newVisibleNodes.hidden[1] = true;
-            setVisibleNodes(newVisibleNodes);
             setLayerOutputs(stepOutputs[2]);
             
             // Step 5: Show connections from input to third hidden node
@@ -373,14 +416,9 @@ const NeuralNetworkSimulator = () => {
                 hiddenToOutput: [[false, false, false]]
               });
               
-              // Step 6: Show third hidden node
+              // Step 6: Show third hidden node value
               setTimeout(() => {
                 setAnimationStep(3);
-                const newVisibleNodes = { ...visibleNodes };
-                newVisibleNodes.hidden[0] = true;
-                newVisibleNodes.hidden[1] = true;
-                newVisibleNodes.hidden[2] = true;
-                setVisibleNodes(newVisibleNodes);
                 setLayerOutputs(stepOutputs[3]);
                 
                 // Step 7: Show connections from hidden to output
@@ -391,13 +429,9 @@ const NeuralNetworkSimulator = () => {
                     hiddenToOutput: [[true, true, true]]
                   });
                   
-                  // Step 8: Show output node
+                  // Step 8: Show output node value
                   setTimeout(() => {
                     setAnimationStep(4);
-                    const newVisibleNodes = { ...visibleNodes };
-                    newVisibleNodes.hidden = [true, true, true];
-                    newVisibleNodes.output = [true];
-                    setVisibleNodes(newVisibleNodes);
                     setLayerOutputs(stepOutputs[4]);
                     
                     // Final step: Complete animation
@@ -431,18 +465,23 @@ const NeuralNetworkSimulator = () => {
   
   // Reset state
   const resetState = () => {
-    // Reset state based on current mode
-    if (mode === "train") {
-      // In training mode, hide hidden and output layers
-      setVisibleLayers({ input: true, hidden: false, output: false });
-      // Clear layer outputs
-      setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
-    } else if (mode === "apply") {
-      // In apply mode, show all layers
-      setVisibleLayers({ input: true, hidden: true, output: true });
-      // Don't calculate output values, keep them at 0
-      setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
-    }
+    // Ensure all layers are always visible regardless of mode
+    setVisibleLayers({ input: true, hidden: true, output: true });
+    
+    // Clear layer outputs
+    setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
+    
+    // Ensure all nodes are visible
+    setVisibleNodes({
+      hidden: [true, true, true],
+      output: [true]
+    });
+    
+    // Reset connection visibility (can choose whether to show them too)
+    setVisibleConnections({
+      inputToHidden: [[false, false], [false, false], [false, false]],
+      hiddenToOutput: [[false, false, false]]
+    });
     
     // Reset animation phase
     setAnimationPhase(null);
@@ -475,54 +514,103 @@ const NeuralNetworkSimulator = () => {
         <Box 
           sx={{ 
             display: 'flex', 
-            justifyContent: 'space-evenly',
+            flexDirection: 'column',
             width: '100%', 
             position: 'relative',
-            height: '400px',
+            height: '450px', // 增加高度以容纳按钮
             padding: '0 40px'
           }}
         >
-          <ConnectionLines 
-            W1={weights.W1} 
-            W2={weights.W2} 
-            oldW1={oldWeights?.W1}
-            oldW2={oldWeights?.W2}
-            inputSize={inputSize} 
-            hiddenSize={hiddenSize} 
-            outputSize={outputSize}
-            animationPhase={animationPhase}
-            visibleConnections={visibleConnections}
-          />
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-evenly',
+              width: '100%', 
+              position: 'relative',
+              flex: 1,
+              padding: '0 40px'
+            }}
+          >
+            <ConnectionLines 
+              W1={weights.W1} 
+              W2={weights.W2} 
+              oldW1={oldWeights?.W1}
+              oldW2={oldWeights?.W2}
+              inputSize={inputSize} 
+              hiddenSize={hiddenSize} 
+              outputSize={outputSize}
+              animationPhase={animationPhase}
+              visibleConnections={visibleConnections}
+            />
+            
+            <NetworkLayer 
+              layerIndex={0} 
+              layerName={t('inputLayer')} 
+              size={inputSize} 
+              values={inputs} 
+              visible={visibleLayers.input} 
+            />
+            
+            <NetworkLayer 
+              layerIndex={1} 
+              layerName={t('hiddenLayer')} 
+              size={hiddenSize} 
+              values={layerOutputs.A1} 
+              visible={visibleLayers.hidden}
+              visibleNodes={visibleNodes.hidden}
+              animationStep={animationStep}
+            />
+            
+            <NetworkLayer 
+              layerIndex={2} 
+              layerName={t('outputLayer')} 
+              size={outputSize} 
+              values={layerOutputs.A2} 
+              visible={visibleLayers.output}
+              visibleNodes={visibleNodes.output}
+              animationStep={animationStep}
+            />
+            
+            <TargetValueDisplay targetValue={targetValue} mode={mode} />
+          </Box>
           
-          <NetworkLayer 
-            layerIndex={0} 
-            layerName={t('inputLayer')} 
-            size={inputSize} 
-            values={inputs} 
-            visible={visibleLayers.input} 
-          />
+          {/* Add divider */}
+          <Divider sx={{ my: 1.5, width: '100%' }} />
           
-          <NetworkLayer 
-            layerIndex={1} 
-            layerName={t('hiddenLayer')} 
-            size={hiddenSize} 
-            values={layerOutputs.A1} 
-            visible={visibleLayers.hidden}
-            visibleNodes={visibleNodes.hidden}
-            animationStep={animationStep}
-          />
-          
-          <NetworkLayer 
-            layerIndex={2} 
-            layerName={t('outputLayer')} 
-            size={outputSize} 
-            values={layerOutputs.A2} 
-            visible={visibleLayers.output}
-            visibleNodes={visibleNodes.output}
-            animationStep={animationStep}
-          />
-          
-          <TargetValueDisplay targetValue={targetValue} mode={mode} />
+          {/* Add buttons to neural network container */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 1.5 }}>
+            {mode === "train" ? (
+              <>
+                <StyledButton 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleForwardPropagation}
+                  disabled={forwardDisabled}
+                  sx={{ fontSize: '16px' }}
+                >
+                  {t('forwardPropagation')}
+                </StyledButton>
+                <StyledButton 
+                  variant="contained" 
+                  color="secondary" 
+                  onClick={handleBackwardPropagation}
+                  disabled={backwardDisabled}
+                  sx={{ fontSize: '16px' }}
+                >
+                  {t('backwardPropagation')}
+                </StyledButton>
+              </>
+            ) : (
+              <StyledButton 
+                variant="contained" 
+                color="primary" 
+                onClick={handleApplyNetwork}
+                sx={{ fontSize: '16px', px: 5 }}
+              >
+                {t('applyNetwork')}
+              </StyledButton>
+            )}
+          </Box>
         </Box>
       </NetworkContainer>
       
@@ -535,13 +623,8 @@ const NeuralNetworkSimulator = () => {
         onInput2Change={handleInput2Change}
         onLearningRateChange={handleLearningRateChange}
         onTargetValueChange={handleTargetValueChange}
-        onForwardPropagation={handleForwardPropagation}
-        onBackwardPropagation={handleBackwardPropagation}
-        onApplyNetwork={handleApplyNetwork}
         onGoodInitialization={handleGoodInitialization}
         onBadInitialization={handleBadInitialization}
-        forwardDisabled={forwardDisabled}
-        backwardDisabled={backwardDisabled}
         mode={mode}
         outputValue={layerOutputs.A2[0] || 0}
       />
