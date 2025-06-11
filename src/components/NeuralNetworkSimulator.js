@@ -131,22 +131,22 @@ const NeuralNetworkSimulator = () => {
     // Calculate forward propagation results
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // Create step outputs for each animation phase - 不再重置为零
+    // 创建每个动画阶段的输出步骤 - 按照连线和节点值分开更新
     const stepOutputs = [
-      { A1: [...A1], A2: [...A2] },  // 初始状态即为计算结果
-      { A1: [...A1], A2: [...A2] },  // 第一个隐藏节点
-      { A1: [...A1], A2: [...A2] },  // 第二个隐藏节点 
-      { A1: [...A1], A2: [...A2] },  // 第三个隐藏节点
-      { A1: [...A1], A2: [...A2] }   // 输出节点
+      { A1: [null, null, null], A2: [null] },  // 初始状态
+      { A1: [A1[0], null, null], A2: [null] },  // 第一个隐藏节点值
+      { A1: [A1[0], A1[1], null], A2: [null] },  // 第二个隐藏节点值
+      { A1: [A1[0], A1[1], A1[2]], A2: [null] },  // 所有隐藏节点值
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 输出节点值
     ];
     
     // Reset animation state
     setAnimationStep(0);
     
-    // 新的逻辑：设置所有神经元为可见，只是其值从空开始
+    // 设置所有神经元为可见
     setVisibleNodes({
-      hidden: [true, true, true], // 所有隐藏层神经元都可见
-      output: [true]              // 输出层神经元也可见
+      hidden: [true, true, true], 
+      output: [true]
     });
     
     setVisibleConnections({
@@ -163,21 +163,21 @@ const NeuralNetworkSimulator = () => {
     // Delay between animation steps
     const stepDelay = 800;
     
-    // Start animation sequence
+    // Start animation sequence - 修改动画顺序，先显示连线动画，再更新节点值
     const startAnimation = () => {
-      // Step 1: Show connections from input to first hidden node
+      // Step 1: 显示输入层到第一个隐藏节点的连线
       setAnimationPhase('forward-input-to-hidden-1');
       setVisibleConnections({
         inputToHidden: [[true, true], [false, false], [false, false]],
         hiddenToOutput: [[false, false, false]]
       });
       
-      // Step 2: Show first hidden node value
+      // 延迟后显示第一个隐藏节点的值
       setTimeout(() => {
         setAnimationStep(1);
         setLayerOutputs(stepOutputs[1]);
         
-        // Step 3: Show connections from input to second hidden node
+        // 显示输入层到第二个隐藏节点的连线
         setTimeout(() => {
           setAnimationPhase('forward-input-to-hidden-2');
           setVisibleConnections({
@@ -185,12 +185,12 @@ const NeuralNetworkSimulator = () => {
             hiddenToOutput: [[false, false, false]]
           });
           
-          // Step 4: Show second hidden node value
+          // 延迟后显示第二个隐藏节点的值
           setTimeout(() => {
             setAnimationStep(2);
             setLayerOutputs(stepOutputs[2]);
             
-            // Step 5: Show connections from input to third hidden node
+            // 显示输入层到第三个隐藏节点的连线
             setTimeout(() => {
               setAnimationPhase('forward-input-to-hidden-3');
               setVisibleConnections({
@@ -198,12 +198,12 @@ const NeuralNetworkSimulator = () => {
                 hiddenToOutput: [[false, false, false]]
               });
               
-              // Step 6: Show third hidden node value
+              // 延迟后显示第三个隐藏节点的值
               setTimeout(() => {
                 setAnimationStep(3);
                 setLayerOutputs(stepOutputs[3]);
                 
-                // Step 7: Show connections from hidden to output
+                // 显示所有隐藏层到输出层的连线
                 setTimeout(() => {
                   setAnimationPhase('forward-hidden-to-output');
                   setVisibleConnections({
@@ -211,12 +211,12 @@ const NeuralNetworkSimulator = () => {
                     hiddenToOutput: [[true, true, true]]
                   });
                   
-                  // Step 8: Show output node value
+                  // 延迟后显示输出节点的值
                   setTimeout(() => {
                     setAnimationStep(4);
                     setLayerOutputs(stepOutputs[4]);
                     
-                    // Final step: Complete animation
+                    // 动画完成
                     setTimeout(() => {
                       setAnimationPhase(null);
                       setForwardDisabled(true);
@@ -349,13 +349,13 @@ const NeuralNetworkSimulator = () => {
     // Calculate output but don't display immediately
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // Create step outputs for each animation phase
+    // 创建每个动画阶段的输出步骤 - 按照连线和节点值分开更新
     const stepOutputs = [
-      { A1: [...A1], A2: [...A2] },  // 初始状态即为计算结果
-      { A1: [...A1], A2: [...A2] },  // 第一个隐藏节点
-      { A1: [...A1], A2: [...A2] },  // 第二个隐藏节点 
-      { A1: [...A1], A2: [...A2] },  // 第三个隐藏节点
-      { A1: [...A1], A2: [...A2] }   // 输出节点
+      { A1: [null, null, null], A2: [null] },  // 初始状态
+      { A1: [A1[0], null, null], A2: [null] },  // 第一个隐藏节点值
+      { A1: [A1[0], A1[1], null], A2: [null] },  // 第二个隐藏节点值
+      { A1: [A1[0], A1[1], A1[2]], A2: [null] },  // 所有隐藏节点值
+      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 输出节点值
     ];
     
     // Reset animation state
@@ -381,21 +381,21 @@ const NeuralNetworkSimulator = () => {
     // Delay between animation steps
     const stepDelay = 800;
     
-    // Start animation sequence - same as forward propagation
+    // Start animation sequence - 修改动画顺序，先显示连线动画，再更新节点值
     const startAnimation = () => {
-      // Step 1: Show connections from input to first hidden node
+      // Step 1: 显示输入层到第一个隐藏节点的连线
       setAnimationPhase('forward-input-to-hidden-1');
       setVisibleConnections({
         inputToHidden: [[true, true], [false, false], [false, false]],
         hiddenToOutput: [[false, false, false]]
       });
       
-      // Step 2: Show first hidden node value
+      // 延迟后显示第一个隐藏节点的值
       setTimeout(() => {
         setAnimationStep(1);
         setLayerOutputs(stepOutputs[1]);
         
-        // Step 3: Show connections from input to second hidden node
+        // 显示输入层到第二个隐藏节点的连线
         setTimeout(() => {
           setAnimationPhase('forward-input-to-hidden-2');
           setVisibleConnections({
@@ -403,12 +403,12 @@ const NeuralNetworkSimulator = () => {
             hiddenToOutput: [[false, false, false]]
           });
           
-          // Step 4: Show second hidden node value
+          // 延迟后显示第二个隐藏节点的值
           setTimeout(() => {
             setAnimationStep(2);
             setLayerOutputs(stepOutputs[2]);
             
-            // Step 5: Show connections from input to third hidden node
+            // 显示输入层到第三个隐藏节点的连线
             setTimeout(() => {
               setAnimationPhase('forward-input-to-hidden-3');
               setVisibleConnections({
@@ -416,12 +416,12 @@ const NeuralNetworkSimulator = () => {
                 hiddenToOutput: [[false, false, false]]
               });
               
-              // Step 6: Show third hidden node value
+              // 延迟后显示第三个隐藏节点的值
               setTimeout(() => {
                 setAnimationStep(3);
                 setLayerOutputs(stepOutputs[3]);
                 
-                // Step 7: Show connections from hidden to output
+                // 显示所有隐藏层到输出层的连线
                 setTimeout(() => {
                   setAnimationPhase('forward-hidden-to-output');
                   setVisibleConnections({
@@ -429,12 +429,12 @@ const NeuralNetworkSimulator = () => {
                     hiddenToOutput: [[true, true, true]]
                   });
                   
-                  // Step 8: Show output node value
+                  // 延迟后显示输出节点的值
                   setTimeout(() => {
                     setAnimationStep(4);
                     setLayerOutputs(stepOutputs[4]);
                     
-                    // Final step: Complete animation
+                    // 动画完成
                     setTimeout(() => {
                       setAnimationPhase(null);
                     }, stepDelay);
