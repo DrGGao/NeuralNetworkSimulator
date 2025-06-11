@@ -32,8 +32,9 @@ const ValueText = styled(Box)(({ theme, 'data-visible': visible }) => ({
 
 // Neuron node component
 const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
-  // 检查值是否为NaN或undefined，如果是则显示为0
-  const safeValue = (value !== undefined && !isNaN(parseFloat(value))) ? parseFloat(value) : 0;
+  // 检查值是否为null、NaN或undefined
+  const hasValue = value !== null && value !== undefined && !isNaN(parseFloat(value));
+  const safeValue = hasValue ? parseFloat(value) : 0;
   
   // Calculate highlight effect based on value changes
   const normalizedValue = Math.min(Math.abs(safeValue) / 5, 1);
@@ -56,7 +57,7 @@ const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
         component="span" 
         data-visible={visible}
       >
-        {visible ? safeValue.toFixed(2) : ''}
+        {visible && hasValue ? safeValue.toFixed(2) : ''}
       </ValueText>
     </NeuronPaper>
   );

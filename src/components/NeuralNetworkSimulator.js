@@ -66,8 +66,8 @@ const NeuralNetworkSimulator = () => {
   
   const [inputs, setInputs] = useState([1, 2]);
   const [layerOutputs, setLayerOutputs] = useState({
-    A1: [0, 0, 0],
-    A2: [0]
+    A1: [null, null, null],
+    A2: [null]
   });
   const [visibleLayers, setVisibleLayers] = useState({
     input: true,
@@ -131,13 +131,13 @@ const NeuralNetworkSimulator = () => {
     // Calculate forward propagation results
     const { A1, A2 } = forwardPropagation(inputs, weights);
     
-    // Create step outputs for each animation phase
+    // Create step outputs for each animation phase - 不再重置为零
     const stepOutputs = [
-      { A1: [0, 0, 0], A2: [0] },  // Initial state
-      { A1: [A1[0], 0, 0], A2: [0] },  // Show first hidden node
-      { A1: [A1[0], A1[1], 0], A2: [0] },  // Show second hidden node
-      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // Show third hidden node
-      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // Show output node
+      { A1: [...A1], A2: [...A2] },  // 初始状态即为计算结果
+      { A1: [...A1], A2: [...A2] },  // 第一个隐藏节点
+      { A1: [...A1], A2: [...A2] },  // 第二个隐藏节点 
+      { A1: [...A1], A2: [...A2] },  // 第三个隐藏节点
+      { A1: [...A1], A2: [...A2] }   // 输出节点
     ];
     
     // Reset animation state
@@ -351,11 +351,11 @@ const NeuralNetworkSimulator = () => {
     
     // Create step outputs for each animation phase
     const stepOutputs = [
-      { A1: [0, 0, 0], A2: [0] },  // Initial state
-      { A1: [A1[0], 0, 0], A2: [0] },  // Show first hidden node
-      { A1: [A1[0], A1[1], 0], A2: [0] },  // Show second hidden node
-      { A1: [A1[0], A1[1], A1[2]], A2: [0] },  // Show third hidden node
-      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // Show output node
+      { A1: [...A1], A2: [...A2] },  // 初始状态即为计算结果
+      { A1: [...A1], A2: [...A2] },  // 第一个隐藏节点
+      { A1: [...A1], A2: [...A2] },  // 第二个隐藏节点 
+      { A1: [...A1], A2: [...A2] },  // 第三个隐藏节点
+      { A1: [...A1], A2: [...A2] }   // 输出节点
     ];
     
     // Reset animation state
@@ -468,8 +468,14 @@ const NeuralNetworkSimulator = () => {
     // Ensure all layers are always visible regardless of mode
     setVisibleLayers({ input: true, hidden: true, output: true });
     
-    // Clear layer outputs
-    setLayerOutputs({ A1: [0, 0, 0], A2: [0] });
+    // 不再重置层输出为零
+    // 如果之前有值，保留这些值；如果没有，设置为null
+    setLayerOutputs(prevOutputs => {
+      // 检查是否有现有值
+      const hasValues = prevOutputs.A1.some(v => v !== null) || prevOutputs.A2.some(v => v !== null);
+      // 如果有现有值，保留；否则保持为空数组但不是零
+      return hasValues ? prevOutputs : { A1: [null, null, null], A2: [null] };
+    });
     
     // Ensure all nodes are visible
     setVisibleNodes({
