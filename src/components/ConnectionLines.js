@@ -34,6 +34,16 @@ const ConnectionLines = ({
       rect {
         transition: width 0.25s ease, x 0.25s ease, opacity 0.25s ease;
       }
+      @keyframes blink {
+        0% { opacity: 1; }
+        25% { opacity: 0.3; }
+        50% { opacity: 1; }
+        75% { opacity: 0.3; }
+        100% { opacity: 1; }
+      }
+      .blink-animation {
+        animation: blink 1s ease-in-out;
+      }
     `;
     svg.appendChild(style);
     
@@ -238,6 +248,11 @@ const ConnectionLines = ({
                 // 更新背景以适应更长的文本
                 bg.setAttribute('width', 90);
                 bg.setAttribute('x', midX - 45);
+              } else if (oldWeight !== undefined) {
+                // 权重没有变化，添加闪烁效果
+                text.textContent = weight.toFixed(2);
+                text.classList.add('blink-animation');
+                bg.classList.add('blink-animation');
               }
               
               // 使W1权重文本半透明
@@ -260,6 +275,11 @@ const ConnectionLines = ({
                 // 更新背景以适应更长的文本
                 bg.setAttribute('width', 90);
                 bg.setAttribute('x', midX - 45);
+              } else if (oldWeight !== undefined) {
+                // 权重没有变化，添加闪烁效果
+                text.textContent = weight.toFixed(2);
+                text.classList.add('blink-animation');
+                bg.classList.add('blink-animation');
               }
             } else if (animationPhase === 'backward') {
               // 兼容老的backward动画阶段
@@ -278,6 +298,11 @@ const ConnectionLines = ({
                 // Update background to fit longer text
                 bg.setAttribute('width', 90);
                 bg.setAttribute('x', midX - 45);
+              } else if (oldWeight !== undefined) {
+                // 权重没有变化，添加闪烁效果
+                text.textContent = weight.toFixed(2);
+                text.classList.add('blink-animation');
+                bg.classList.add('blink-animation');
               }
             }
             
