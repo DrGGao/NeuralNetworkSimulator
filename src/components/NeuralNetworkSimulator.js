@@ -626,7 +626,7 @@ const NeuralNetworkSimulator = () => {
         onGoodInitialization={handleGoodInitialization}
         onBadInitialization={handleBadInitialization}
         mode={mode}
-        outputValue={layerOutputs.A2[0] || 0}
+        outputValue={layerOutputs.A2[0] !== undefined ? layerOutputs.A2[0] : 0}
       />
     </Box>
   );

@@ -138,17 +138,11 @@ const ControlPanel = ({
                 <Typography variant="subtitle2" gutterBottom>{t('outputValue')}</Typography>
                 <OutputValueContainer>
                   <Typography variant="h5" color="primary" fontWeight="bold">
-                    {outputValue === 0 ? (
-                      <span style={{ visibility: 'hidden' }}>0.000</span>
-                    ) : (
-                      outputValue.toFixed(3)
-                    )}
+                    {outputValue.toFixed(3)}
                   </Typography>
-                  {outputValue !== 0 && (
-                    <Typography variant="caption" color="textSecondary">
-                      {t('calculatedFromNetwork')}
-                    </Typography>
-                  )}
+                  <Typography variant="caption" color="textSecondary">
+                    {t('calculatedFromNetwork')}
+                  </Typography>
                 </OutputValueContainer>
               </>
             )}

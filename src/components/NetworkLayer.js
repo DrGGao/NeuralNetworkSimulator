@@ -59,7 +59,7 @@ const NetworkLayer = ({
             <NeuronNode
               key={i}
               id={`node-${layerIndex}-${i}`}
-              value={nodeVisible ? (values[i] || '') : ''}
+              value={nodeVisible ? (values[i] !== undefined ? values[i] : 0) : ''}
               data-visible={nodeVisible}
             />
           );

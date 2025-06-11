@@ -56,7 +56,7 @@ const NeuronNode = ({ id, value, color = 'black', visible = true }) => {
         component="span" 
         data-visible={visible}
       >
-        {visible ? (safeValue === 0 && value === '' ? '' : safeValue.toFixed(2)) : ''}
+        {visible ? safeValue.toFixed(2) : ''}
       </ValueText>
     </NeuronPaper>
   );
