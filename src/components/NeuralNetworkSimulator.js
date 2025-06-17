@@ -116,7 +116,7 @@ const NeuralNetworkSimulator = () => {
       setMode(newMode);
       
       // Reset network state when changing modes
-      resetState();
+      resetStateForMode(newMode);
     }
   };
   
@@ -346,17 +346,8 @@ const NeuralNetworkSimulator = () => {
       setWeights(safeWeights);
     }
     
-    // Calculate output but don't display immediately
-    const { A1, A2 } = forwardPropagation(inputs, weights);
-    
-    // 创建每个动画阶段的输出步骤 - 按照连线和节点值分开更新
-    const stepOutputs = [
-      { A1: [null, null, null], A2: [null] },  // 初始状态
-      { A1: [A1[0], null, null], A2: [null] },  // 第一个隐藏节点值
-      { A1: [A1[0], A1[1], null], A2: [null] },  // 第二个隐藏节点值
-      { A1: [A1[0], A1[1], A1[2]], A2: [null] },  // 所有隐藏节点值
-      { A1: [A1[0], A1[1], A1[2]], A2: [A2[0]] }  // 输出节点值
-    ];
+    // Calculate output immediately using the current (potentially corrected) weights
+    const { A1, A2 } = forwardPropagation(inputs, safeWeights);
     
     // Reset animation state
     setAnimationStep(0);
@@ -367,88 +358,25 @@ const NeuralNetworkSimulator = () => {
       output: [true]
     });
     
+    // Show all connections immediately to avoid blank appearance
     setVisibleConnections({
-      inputToHidden: [[false, false], [false, false], [false, false]],
-      hiddenToOutput: [[false, false, false]]
+      inputToHidden: [[true, true], [true, true], [true, true]],
+      hiddenToOutput: [[true, true, true]]
     });
     
-    // Set initial layer outputs to first step
-    setLayerOutputs(stepOutputs[0]);
+    // Show immediate result instead of starting blank
+    setLayerOutputs({ A1, A2 });
     
     // 确保所有层始终可见
     setVisibleLayers({ input: true, hidden: true, output: true });
     
-    // Delay between animation steps
-    const stepDelay = 800;
+    // Provide user feedback by briefly highlighting the result
+    setAnimationPhase('apply-complete');
     
-    // Start animation sequence - 修改动画顺序，先显示连线动画，再更新节点值
-    const startAnimation = () => {
-      // Step 1: 显示输入层到第一个隐藏节点的连线
-      setAnimationPhase('forward-input-to-hidden-1');
-      setVisibleConnections({
-        inputToHidden: [[true, true], [false, false], [false, false]],
-        hiddenToOutput: [[false, false, false]]
-      });
-      
-      // 延迟后显示第一个隐藏节点的值
-      setTimeout(() => {
-        setAnimationStep(1);
-        setLayerOutputs(stepOutputs[1]);
-        
-        // 显示输入层到第二个隐藏节点的连线
-        setTimeout(() => {
-          setAnimationPhase('forward-input-to-hidden-2');
-          setVisibleConnections({
-            inputToHidden: [[true, true], [true, true], [false, false]],
-            hiddenToOutput: [[false, false, false]]
-          });
-          
-          // 延迟后显示第二个隐藏节点的值
-          setTimeout(() => {
-            setAnimationStep(2);
-            setLayerOutputs(stepOutputs[2]);
-            
-            // 显示输入层到第三个隐藏节点的连线
-            setTimeout(() => {
-              setAnimationPhase('forward-input-to-hidden-3');
-              setVisibleConnections({
-                inputToHidden: [[true, true], [true, true], [true, true]],
-                hiddenToOutput: [[false, false, false]]
-              });
-              
-              // 延迟后显示第三个隐藏节点的值
-              setTimeout(() => {
-                setAnimationStep(3);
-                setLayerOutputs(stepOutputs[3]);
-                
-                // 显示所有隐藏层到输出层的连线
-                setTimeout(() => {
-                  setAnimationPhase('forward-hidden-to-output');
-                  setVisibleConnections({
-                    inputToHidden: [[true, true], [true, true], [true, true]],
-                    hiddenToOutput: [[true, true, true]]
-                  });
-                  
-                  // 延迟后显示输出节点的值
-                  setTimeout(() => {
-                    setAnimationStep(4);
-                    setLayerOutputs(stepOutputs[4]);
-                    
-                    // 动画完成
-                    setTimeout(() => {
-                      setAnimationPhase(null);
-                    }, stepDelay);
-                  }, stepDelay);
-                }, stepDelay);
-              }, stepDelay);
-            }, stepDelay);
-          }, stepDelay);
-        }, stepDelay);
-      }, stepDelay);
-    };
-    
-    // Start the animation
-    startAnimation();
+    // Clear animation phase after a short delay to remove any highlighting
+    setTimeout(() => {
+      setAnimationPhase(null);
+    }, 1500); // Brief highlight to show the calculation is complete
   };
   
   // Set good initialization weights
@@ -463,19 +391,26 @@ const NeuralNetworkSimulator = () => {
     resetState();
   };
   
-  // Reset state
-  const resetState = () => {
+  // Reset state for a specific mode
+  const resetStateForMode = (targetMode) => {
     // Ensure all layers are always visible regardless of mode
     setVisibleLayers({ input: true, hidden: true, output: true });
     
-    // 不再重置层输出为零
-    // 如果之前有值，保留这些值；如果没有，设置为null
-    setLayerOutputs(prevOutputs => {
-      // 检查是否有现有值
-      const hasValues = prevOutputs.A1.some(v => v !== null) || prevOutputs.A2.some(v => v !== null);
-      // 如果有现有值，保留；否则保持为空数组但不是零
-      return hasValues ? prevOutputs : { A1: [null, null, null], A2: [null] };
-    });
+    // Handle layer outputs based on mode
+    if (targetMode === "apply") {
+      // For apply mode, calculate initial output automatically to avoid blank screen
+      const safeWeights = checkAndFixWeights(weights);
+      const { A1, A2 } = forwardPropagation(inputs, safeWeights);
+      setLayerOutputs({ A1, A2 });
+    } else {
+      // For training mode, preserve existing values or set to null if no prior training
+      setLayerOutputs(prevOutputs => {
+        // 检查是否有现有值
+        const hasValues = prevOutputs.A1.some(v => v !== null) || prevOutputs.A2.some(v => v !== null);
+        // 如果有现有值，保留；否则保持为空数组但不是零
+        return hasValues ? prevOutputs : { A1: [null, null, null], A2: [null] };
+      });
+    }
     
     // Ensure all nodes are visible
     setVisibleNodes({
@@ -483,17 +418,30 @@ const NeuralNetworkSimulator = () => {
       output: [true]
     });
     
-    // Reset connection visibility (can choose whether to show them too)
-    setVisibleConnections({
-      inputToHidden: [[false, false], [false, false], [false, false]],
-      hiddenToOutput: [[false, false, false]]
-    });
+    // Set connection visibility based on target mode
+    // In apply mode, show all connections immediately; in training mode, reset them
+    if (targetMode === "apply") {
+      setVisibleConnections({
+        inputToHidden: [[true, true], [true, true], [true, true]],
+        hiddenToOutput: [[true, true, true]]
+      });
+    } else {
+      setVisibleConnections({
+        inputToHidden: [[false, false], [false, false], [false, false]],
+        hiddenToOutput: [[false, false, false]]
+      });
+    }
     
     // Reset animation phase
     setAnimationPhase(null);
     // Enable forward propagation, disable backpropagation
     setForwardDisabled(false);
     setBackwardDisabled(true);
+  };
+
+  // Reset state (for backward compatibility with other function calls)
+  const resetState = () => {
+    resetStateForMode(mode);
   };
   
   return (
@@ -611,9 +559,10 @@ const NeuralNetworkSimulator = () => {
                 variant="contained" 
                 color="primary" 
                 onClick={handleApplyNetwork}
+                disabled={animationPhase !== null}
                 sx={{ fontSize: '16px', px: 5 }}
               >
-                {t('applyNetwork')}
+                {animationPhase === 'apply-complete' ? 'Applied!' : t('applyNetwork')}
               </StyledButton>
             )}
           </Box>
