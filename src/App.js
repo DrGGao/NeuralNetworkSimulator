@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import ReactGA from 'react-ga4';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Container, Box, Typography } from '@mui/material';
@@ -31,6 +32,11 @@ const theme = createTheme({
 // Application content component with access to language context
 const AppContent = () => {
   const { t } = useLanguage();
+  
+  // 发送页面浏览事件到 Google Analytics
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
   
   return (
     <ThemeProvider theme={theme}>

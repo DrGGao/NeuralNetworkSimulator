@@ -42,6 +42,9 @@ export const translations = {
     // Backpropagation phases
     backpropagationPhase1: 'Step 1: Output Layer to Hidden Layer Backpropagation',
     backpropagationPhase2: 'Step 2: Hidden Layer to Input Layer Backpropagation',
+    
+    // Visitor counter
+    visitorCount: 'Visitor Count',
   },
   zh: {
     // App
@@ -80,6 +83,9 @@ export const translations = {
     // Backpropagation phases
     backpropagationPhase1: '',
     backpropagationPhase2: '',
+    
+    // Visitor counter
+    visitorCount: '',
   }
 };
 

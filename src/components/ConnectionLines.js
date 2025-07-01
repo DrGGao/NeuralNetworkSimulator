@@ -2,6 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { findMinMaxWeights, getWeightColor } from '../utils/neuralNetworkUtils';
 
+// 计算限制后的线条粗细 - 权重超过5时不再加粗
+const getStrokeWidth = (weight, multiplier = 1.5, baseWidth = 1, maxWeight = 5) => {
+  const absWeight = Math.abs(weight);
+  const limitedWeight = Math.min(absWeight, maxWeight);
+  return limitedWeight * multiplier + baseWidth;
+};
+
 const ConnectionLines = ({ 
   W1, 
   W2, 
@@ -96,39 +103,39 @@ const ConnectionLines = ({
           line.setAttribute('y2', toPos.y);
           line.setAttribute('stroke', color);
           
-          // 为反向传播阶段设置不同的线条样式
+          // 为反向传播阶段设置不同的线条样式 - 使用限制后的粗细
           if (animationPhase === 'backward-phase1') {
             // 在第一阶段，突出W2连接，弱化W1连接
             if (layerIndex === 1) { // W2连接：隐藏层到输出层
-              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2); // 更粗的线
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 3, 2)); // 更粗的线，但有限制
               line.setAttribute('opacity', '1');
             } else if (layerIndex === 0) { // W1连接：输入层到隐藏层
-              line.setAttribute('stroke-width', Math.abs(weight) * 1 + 1); 
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 1, 1)); 
               line.setAttribute('opacity', '0.3'); // 半透明
             }
           } else if (animationPhase === 'backward-phase2') {
             // 在第二阶段，突出W1连接，W2连接保持正常
             if (layerIndex === 0) { // W1连接：输入层到隐藏层
-              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2); // 更粗的线
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 3, 2)); // 更粗的线，但有限制
               line.setAttribute('opacity', '1');
             } else if (layerIndex === 1) { // W2连接：隐藏层到输出层
-              line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 1.5, 1));
               line.setAttribute('opacity', '1');
             }
           } else if (animationPhase && animationPhase.startsWith('forward-')) {
             // 前向传播阶段
             if (isHighlighted) {
               // 高亮显示当前活跃的连接
-              line.setAttribute('stroke-width', Math.abs(weight) * 3 + 2);
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 3, 2));
               line.setAttribute('opacity', '1');
             } else {
               // 其他连接显示为细线
-              line.setAttribute('stroke-width', Math.abs(weight) * 1 + 1);
+              line.setAttribute('stroke-width', getStrokeWidth(weight, 1, 1));
               line.setAttribute('opacity', '0.3');
             }
           } else {
-            // 其他情况使用默认线宽
-            line.setAttribute('stroke-width', Math.abs(weight) * 1.5 + 1);
+            // 其他情况使用默认线宽 - 使用限制后的粗细
+            line.setAttribute('stroke-width', getStrokeWidth(weight, 1.5, 1));
             line.setAttribute('opacity', '1');
           }
           
@@ -159,7 +166,7 @@ const ConnectionLines = ({
             
             svg.appendChild(bg);  // Add background to SVG first
             
-            // Then add text
+            // Then add text - 数字显示仍然显示真实的权重值，不受限制
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', midX);
             text.setAttribute('y', midY);
@@ -177,7 +184,7 @@ const ConnectionLines = ({
               text.setAttribute('opacity', '1');
             }
             
-            text.textContent = weight.toFixed(2);
+            text.textContent = weight.toFixed(2); // 数字显示真实权重值，不受限制
             
             // If in animation phase, add effects
             if (animationPhase === 'forward-input-to-hidden-1' && layerIndex === 0 && j === 0) {
