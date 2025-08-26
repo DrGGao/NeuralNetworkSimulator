@@ -93,18 +93,20 @@ export const backwardPropagation = (inputs, A1, A2, W1, W2, targetOutputs, learn
     return { newW1: W1, newW2: W2 };
   }
   
-  // Calculate output layer errors and gradients
+  // Calculate output layer errors and gradients (using standard MSE gradient)
+  // Standard MSE: Loss = (target - output)²
+  // Gradient: ∂Loss/∂output = -2 * (target - output)
   const outputErrors = targetOutputs.map((target, i) => {
-    const error = target - A2[i];
-    console.log(`Output error for node ${i}: ${target} - ${A2[i]} = ${error}`);
+    const error = -2 * (target - A2[i]); // Standard MSE gradient
+    console.log(`Output error (standard MSE) for node ${i}: -2 * (${target} - ${A2[i]}) = ${error}`);
     return error;
   });
   
   const outputDeltas = outputErrors.map((error, i) => {
     const derivative = ReLUDerivative(A2[i]);
     console.log(`ReLU derivative for A2[${i}] (${A2[i]}):`, derivative);
-    const delta = error * derivative;
-    console.log(`Output delta for node ${i}: ${error} * ${derivative} = ${delta}`);
+    const delta = -error * derivative; // Negative for gradient descent
+    console.log(`Output delta for node ${i}: -(${error}) * ${derivative} = ${delta}`);
     if (isNaN(delta)) console.error(`NaN detected in output delta calculation!`);
     return delta;
   });
