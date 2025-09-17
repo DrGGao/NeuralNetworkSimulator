@@ -85,7 +85,7 @@ const NeuralNetworkSimulator = () => {
     inputToHidden: [[false, false], [false, false], [false, false]],
     hiddenToOutput: [[false, false, false]]
   });
-  const [learningRate, setLearningRate] = useState(0.1);
+  const [learningRate, setLearningRate] = useState(0.05);
   const [targetValue, setTargetValue] = useState(3.0);
   const [forwardDisabled, setForwardDisabled] = useState(false);
   const [backwardDisabled, setBackwardDisabled] = useState(true);
