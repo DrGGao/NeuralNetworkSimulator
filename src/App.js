@@ -47,7 +47,7 @@ const AppContent = () => {
           <Typography variant="h4" component="h1" gutterBottom>
             {t('appTitle')}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.primary" sx={{ mb: 3, fontWeight: 'bold' }}>
             Let's train a very simple neural network to learn addition using the single training example 1 + 2 = 3.
           </Typography>
           <NeuralNetworkSimulator />
